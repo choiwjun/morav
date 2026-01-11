@@ -12,7 +12,7 @@ interface EnvConfig {
   // App URL
   NEXT_PUBLIC_APP_URL: string;
   // Encryption
-  ENCRYPTION_KEY: string;
+  ENCRYPTION_SECRET_KEY: string;
 }
 
 type EnvKey = keyof EnvConfig;

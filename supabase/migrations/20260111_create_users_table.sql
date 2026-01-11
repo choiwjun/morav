@@ -11,6 +11,11 @@ CREATE TABLE IF NOT EXISTS public.users (
 -- RLS (Row Level Security) 활성화
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
+-- 기존 정책 삭제 (있는 경우)
+DROP POLICY IF EXISTS "Users can view own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.users;
+
 -- 사용자는 자신의 프로필만 조회 가능
 CREATE POLICY "Users can view own profile"
   ON public.users

@@ -5,6 +5,22 @@ import type { Database } from '@/types/database';
 // 온보딩 경로 패턴
 const ONBOARDING_PATHS = ['/onboarding'];
 
+function getSupabaseUrl(): string {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!url) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL 환경변수가 설정되지 않았습니다.');
+  }
+  return url;
+}
+
+function getSupabaseAnonKey(): string {
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!key) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_ANON_KEY 환경변수가 설정되지 않았습니다.');
+  }
+  return key;
+}
+
 /**
  * 온보딩 미들웨어
  * - 인증되지 않은 사용자를 /auth/login으로 리다이렉트
@@ -20,20 +36,16 @@ export async function onboardingMiddleware(request: NextRequest): Promise<NextRe
   }
 
   // Supabase 클라이언트 생성
-  const supabase = createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        },
+  const supabase = createServerClient<Database>(getSupabaseUrl(), getSupabaseAnonKey(), {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
       },
-    }
-  );
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+      },
+    },
+  });
 
   // 사용자 인증 상태 확인
   const {

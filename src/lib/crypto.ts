@@ -6,9 +6,9 @@ const SALT_LENGTH = 32;
 const KEY_LENGTH = 32;
 
 function getEncryptionKey(): string {
-  const key = process.env.ENCRYPTION_KEY;
+  const key = process.env.ENCRYPTION_SECRET_KEY;
   if (!key) {
-    throw new Error('ENCRYPTION_KEY 환경 변수가 설정되지 않았습니다.');
+    throw new Error('ENCRYPTION_SECRET_KEY 환경 변수가 설정되지 않았습니다.');
   }
   return key;
 }
