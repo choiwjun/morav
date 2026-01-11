@@ -52,13 +52,13 @@ describe('Auth Actions', () => {
 
       const formData = new FormData();
       formData.append('email', 'test@example.com');
-      formData.append('password', 'password123');
+      formData.append('password', 'Password123');
 
       const result = await signup(formData);
 
       expect(mockSignUp).toHaveBeenCalledWith({
         email: 'test@example.com',
-        password: 'password123',
+        password: 'Password123',
       });
       expect(result).toEqual({ success: true, user: mockUser });
     });
@@ -66,7 +66,7 @@ describe('Auth Actions', () => {
     it('should return error for invalid email', async () => {
       const formData = new FormData();
       formData.append('email', 'invalid-email');
-      formData.append('password', 'password123');
+      formData.append('password', 'Password123');
 
       const result = await signup(formData);
 
@@ -80,13 +80,55 @@ describe('Auth Actions', () => {
     it('should return error for short password', async () => {
       const formData = new FormData();
       formData.append('email', 'test@example.com');
-      formData.append('password', '123');
+      formData.append('password', 'Pass1');
 
       const result = await signup(formData);
 
       expect(result).toEqual({
         success: false,
-        error: '비밀번호는 최소 6자 이상이어야 합니다.',
+        error: '비밀번호는 최소 8자 이상이어야 합니다.',
+      });
+      expect(mockSignUp).not.toHaveBeenCalled();
+    });
+
+    it('should return error for password without uppercase', async () => {
+      const formData = new FormData();
+      formData.append('email', 'test@example.com');
+      formData.append('password', 'password123');
+
+      const result = await signup(formData);
+
+      expect(result).toEqual({
+        success: false,
+        error: '비밀번호에 대문자를 포함해주세요.',
+      });
+      expect(mockSignUp).not.toHaveBeenCalled();
+    });
+
+    it('should return error for password without lowercase', async () => {
+      const formData = new FormData();
+      formData.append('email', 'test@example.com');
+      formData.append('password', 'PASSWORD123');
+
+      const result = await signup(formData);
+
+      expect(result).toEqual({
+        success: false,
+        error: '비밀번호에 소문자를 포함해주세요.',
+      });
+      expect(mockSignUp).not.toHaveBeenCalled();
+    });
+
+    it('should return error for password without number', async () => {
+      const formData = new FormData();
+      formData.append('email', 'test@example.com');
+      formData.append('password', 'Passwordabc');
+
+      const result = await signup(formData);
+
+      expect(result).toEqual({
+        success: false,
+        error: '비밀번호에 숫자를 포함해주세요.',
       });
       expect(mockSignUp).not.toHaveBeenCalled();
     });
@@ -99,7 +141,7 @@ describe('Auth Actions', () => {
 
       const formData = new FormData();
       formData.append('email', 'test@example.com');
-      formData.append('password', 'password123');
+      formData.append('password', 'Password123');
 
       const result = await signup(formData);
 
@@ -231,25 +273,38 @@ describe('Auth Actions', () => {
       });
 
       const formData = new FormData();
-      formData.append('password', 'newpassword123');
+      formData.append('password', 'NewPassword123');
 
       const result = await updatePassword(formData);
 
       expect(mockUpdateUser).toHaveBeenCalledWith({
-        password: 'newpassword123',
+        password: 'NewPassword123',
       });
       expect(result).toEqual({ success: true });
     });
 
     it('should return error for short password', async () => {
       const formData = new FormData();
-      formData.append('password', '123');
+      formData.append('password', 'Pass1');
 
       const result = await updatePassword(formData);
 
       expect(result).toEqual({
         success: false,
-        error: '비밀번호는 최소 6자 이상이어야 합니다.',
+        error: '비밀번호는 최소 8자 이상이어야 합니다.',
+      });
+      expect(mockUpdateUser).not.toHaveBeenCalled();
+    });
+
+    it('should return error for password without complexity', async () => {
+      const formData = new FormData();
+      formData.append('password', 'password123');
+
+      const result = await updatePassword(formData);
+
+      expect(result).toEqual({
+        success: false,
+        error: '비밀번호에 대문자를 포함해주세요.',
       });
       expect(mockUpdateUser).not.toHaveBeenCalled();
     });

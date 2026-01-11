@@ -11,6 +11,8 @@ const mockSelect = jest.fn();
 const mockUpdate = jest.fn();
 const mockEq = jest.fn();
 const mockSingle = jest.fn();
+const mockUpdateSelect = jest.fn();
+const mockUpdateEq = jest.fn();
 
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(() =>
@@ -35,7 +37,7 @@ describe('Profile Actions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Setup chain mocks
+    // Setup chain mocks for getProfile
     mockFrom.mockReturnValue({
       select: mockSelect,
       update: mockUpdate,
@@ -43,10 +45,18 @@ describe('Profile Actions', () => {
     mockSelect.mockReturnValue({
       eq: mockEq,
     });
-    mockUpdate.mockReturnValue({
-      eq: mockEq,
-    });
     mockEq.mockReturnValue({
+      single: mockSingle,
+    });
+
+    // Setup chain mocks for updateProfile: update -> select -> eq -> single
+    mockUpdate.mockReturnValue({
+      select: mockUpdateSelect,
+    });
+    mockUpdateSelect.mockReturnValue({
+      eq: mockUpdateEq,
+    });
+    mockUpdateEq.mockReturnValue({
       single: mockSingle,
     });
   });
@@ -141,7 +151,8 @@ describe('Profile Actions', () => {
         name: 'Updated Name',
         updated_at: expect.any(String),
       });
-      expect(mockEq).toHaveBeenCalledWith('id', 'user-123');
+      expect(mockUpdateSelect).toHaveBeenCalled();
+      expect(mockUpdateEq).toHaveBeenCalledWith('id', 'user-123');
       expect(result).toEqual({ success: true, profile: mockUpdatedProfile });
     });
 
@@ -209,6 +220,46 @@ describe('Profile Actions', () => {
         success: false,
         error: 'Update failed',
       });
+    });
+
+    it('should return error for invalid avatar_url', async () => {
+      const mockUser = { id: 'user-123' };
+
+      mockGetUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null,
+      });
+
+      const formData = new FormData();
+      formData.append('avatar_url', 'javascript:alert("xss")');
+
+      const result = await updateProfile(formData);
+
+      expect(result).toEqual({
+        success: false,
+        error: '유효한 URL 형식이 아닙니다.',
+      });
+      expect(mockUpdate).not.toHaveBeenCalled();
+    });
+
+    it('should return error for non-http avatar_url', async () => {
+      const mockUser = { id: 'user-123' };
+
+      mockGetUser.mockResolvedValue({
+        data: { user: mockUser },
+        error: null,
+      });
+
+      const formData = new FormData();
+      formData.append('avatar_url', 'ftp://example.com/avatar.jpg');
+
+      const result = await updateProfile(formData);
+
+      expect(result).toEqual({
+        success: false,
+        error: '유효한 URL 형식이 아닙니다.',
+      });
+      expect(mockUpdate).not.toHaveBeenCalled();
     });
   });
 });

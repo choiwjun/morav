@@ -112,59 +112,59 @@
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 3.1.1 | OnboardingProgress 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 3.1.2 | 네비게이션이 포함된 온보딩 레이아웃 생성 | STRUCTURAL | 🎨 FE | [ ] |
-| 3.1.3 | 테스트: 온보딩이 인증되지 않은 사용자를 리다이렉트 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 3.1.1 | OnboardingProgress 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 3.1.2 | 네비게이션이 포함된 온보딩 레이아웃 생성 | STRUCTURAL | 🎨 FE | [x] |
+| 3.1.3 | 테스트: 온보딩이 인증되지 않은 사용자를 리다이렉트 | BEHAVIORAL | ⚙️ BE | [x] |
 
 ### 3.2 블로그 연결 (Step 1)
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 3.2.1 | 데이터베이스에 blogs 테이블 생성 | STRUCTURAL | ⚙️ BE | [ ] |
-| 3.2.2 | 테스트: 사용자가 OAuth로 티스토리 블로그 연결 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.2.3 | 티스토리 OAuth 플로우 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.2.4 | 테스트: 사용자가 OAuth로 구글 블로거 연결 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.2.5 | 구글 블로거 OAuth 플로우 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.2.6 | 테스트: 사용자가 워드프레스 블로그 연결 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.2.7 | 워드프레스 연결 구현 (Application Password) | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.2.8 | 블로그 연결 페이지 UI /onboarding/connect-blog 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 3.2.9 | 테스트: OAuth 토큰이 저장 전 암호화됨 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.2.10 | 테스트: 사용자가 블로그 연결 해제 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 3.2.1 | 데이터베이스에 blogs 테이블 생성 | STRUCTURAL | ⚙️ BE | [x] |
+| 3.2.2 | 테스트: 사용자가 OAuth로 티스토리 블로그 연결 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.2.3 | 티스토리 OAuth 플로우 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.2.4 | 테스트: 사용자가 OAuth로 구글 블로거 연결 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.2.5 | 구글 블로거 OAuth 플로우 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.2.6 | 테스트: 사용자가 워드프레스 블로그 연결 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.2.7 | 워드프레스 연결 구현 (Application Password) | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.2.8 | 블로그 연결 페이지 UI /onboarding/connect-blog 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 3.2.9 | 테스트: OAuth 토큰이 저장 전 암호화됨 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.2.10 | 테스트: 사용자가 블로그 연결 해제 가능 | BEHAVIORAL | ⚙️ BE | [x] |
 
 ### 3.3 AI API 키 등록 (Step 2)
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 3.3.1 | 데이터베이스에 api_keys 테이블 생성 | STRUCTURAL | ⚙️ BE | [ ] |
-| 3.3.2 | 테스트: encrypt 함수가 텍스트를 올바르게 암호화 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.3.3 | 암호화 유틸리티 /lib/crypto.ts 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.3.4 | 테스트: decrypt 함수가 텍스트를 올바르게 복호화 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.3.5 | 테스트: 사용자가 OpenAI API 키 등록 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.3.6 | API 키 검증 엔드포인트 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.3.7 | API 키 등록 페이지 UI /onboarding/api-key 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 3.3.8 | 테스트: 유효하지 않은 API 키 시 에러 표시 | BEHAVIORAL | 🎨 FE | [ ] |
-| 3.3.9 | Claude API 키 검증 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.3.10 | Gemini API 키 검증 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.3.11 | Grok API 키 검증 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 3.3.1 | 데이터베이스에 api_keys 테이블 생성 | STRUCTURAL | ⚙️ BE | [x] |
+| 3.3.2 | 테스트: encrypt 함수가 텍스트를 올바르게 암호화 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.3.3 | 암호화 유틸리티 /lib/crypto.ts 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.3.4 | 테스트: decrypt 함수가 텍스트를 올바르게 복호화 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.3.5 | 테스트: 사용자가 OpenAI API 키 등록 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.3.6 | API 키 검증 엔드포인트 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.3.7 | API 키 등록 페이지 UI /onboarding/api-key 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 3.3.8 | 테스트: 유효하지 않은 API 키 시 에러 표시 | BEHAVIORAL | 🎨 FE | [x] |
+| 3.3.9 | Claude API 키 검증 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.3.10 | Gemini API 키 검증 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.3.11 | Grok API 키 검증 구현 | BEHAVIORAL | ⚙️ BE | [x] |
 
 ### 3.4 카테고리 선택 (Step 3)
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 3.4.1 | 카테고리 상수 정의 | STRUCTURAL | ⚙️ BE | [ ] |
-| 3.4.2 | 테스트: 사용자가 여러 카테고리 선택 가능 | BEHAVIORAL | 🎨 FE | [ ] |
-| 3.4.3 | 카테고리 선택 페이지 UI /onboarding/category 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 3.4.4 | 테스트: 선택된 카테고리가 blog 레코드에 저장됨 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 3.4.1 | 카테고리 상수 정의 | STRUCTURAL | ⚙️ BE | [x] |
+| 3.4.2 | 테스트: 사용자가 여러 카테고리 선택 가능 | BEHAVIORAL | 🎨 FE | [x] |
+| 3.4.3 | 카테고리 선택 페이지 UI /onboarding/category 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 3.4.4 | 테스트: 선택된 카테고리가 blog 레코드에 저장됨 | BEHAVIORAL | ⚙️ BE | [x] |
 
 ### 3.5 스케줄 설정 (Step 4)
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 3.5.1 | schedules 테이블 생성 또는 users 테이블에 추가 | STRUCTURAL | ⚙️ BE | [ ] |
-| 3.5.2 | 테스트: 사용자가 발행 시간 설정 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.5.3 | 테스트: 사용자가 발행 요일 선택 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 3.5.4 | 스케줄 설정 페이지 UI /onboarding/schedule 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 3.5.5 | 테스트: 온보딩 완료 시 대시보드로 리다이렉트 | BEHAVIORAL | 🎨 FE | [ ] |
+| 3.5.1 | schedules 테이블 생성 또는 users 테이블에 추가 | STRUCTURAL | ⚙️ BE | [x] |
+| 3.5.2 | 테스트: 사용자가 발행 시간 설정 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.5.3 | 테스트: 사용자가 발행 요일 선택 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 3.5.4 | 스케줄 설정 페이지 UI /onboarding/schedule 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 3.5.5 | 테스트: 온보딩 완료 시 대시보드로 리다이렉트 | BEHAVIORAL | 🎨 FE | [x] |
 
 ---
 
@@ -176,26 +176,26 @@
 |----|--------|------|------|------|
 | 4.1.1 | 사이드바가 포함된 대시보드 레이아웃 생성 | STRUCTURAL | 🎨 FE | [ ] |
 | 4.1.2 | MetricCard 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 4.1.3 | 테스트: 대시보드가 오늘의 발행 통계 표시 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 4.1.3 | 테스트: 대시보드가 오늘의 발행 통계 표시 | BEHAVIORAL | ⚙️ BE | [x] |
 | 4.1.4 | 대시보드 메인 페이지 /dashboard 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 4.1.5 | 테스트: 대시보드가 최근 포스트 목록 표시 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 4.1.5 | 테스트: 대시보드가 최근 포스트 목록 표시 | BEHAVIORAL | ⚙️ BE | [x] |
 | 4.1.6 | RecentPostsList 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 4.1.7 | 테스트: 대시보드가 구독 상태 위젯 표시 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 4.1.7 | 테스트: 대시보드가 구독 상태 위젯 표시 | BEHAVIORAL | ⚙️ BE | [x] |
 | 4.1.8 | SubscriptionWidget 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [ ] |
 
 ### 4.2 키워드 수집
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 4.2.1 | 데이터베이스에 keywords 테이블 생성 | STRUCTURAL | ⚙️ BE | [ ] |
-| 4.2.2 | 테스트: 키워드 크롤러가 네이버 트렌드 수집 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.2.3 | 네이버 트렌드 키워드 스크래퍼 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.2.4 | 테스트: 키워드 크롤러가 구글 트렌드 수집 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.2.5 | 구글 트렌드 키워드 스크래퍼 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.2.6 | 테스트: 키워드가 올바르게 분류됨 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.2.7 | 키워드 분류 로직 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.2.8 | 매시간 키워드 수집 Cron job 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.2.9 | 테스트: 1시간 내 중복 키워드는 저장되지 않음 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 4.2.1 | 데이터베이스에 keywords 테이블 생성 | STRUCTURAL | ⚙️ BE | [x] |
+| 4.2.2 | 테스트: 키워드 크롤러가 네이버 트렌드 수집 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.2.3 | 네이버 트렌드 키워드 스크래퍼 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.2.4 | 테스트: 키워드 크롤러가 구글 트렌드 수집 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.2.5 | 구글 트렌드 키워드 스크래퍼 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.2.6 | 테스트: 키워드가 올바르게 분류됨 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.2.7 | 키워드 분류 로직 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.2.8 | 매시간 키워드 수집 Cron job 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.2.9 | 테스트: 1시간 내 중복 키워드는 저장되지 않음 | BEHAVIORAL | ⚙️ BE | [x] |
 | 4.2.10 | 키워드 탐색 페이지 /dashboard/keywords 생성 | BEHAVIORAL | 🎨 FE | [ ] |
 
 ### 4.3 AI 콘텐츠 생성
@@ -351,20 +351,20 @@
 |-------|-------------|------|--------|
 | Phase 1: 기반 구축 | 21 | 20 | 95% |
 | Phase 2: 인증 | 18 | 18 | 100% |
-| Phase 3: 온보딩 | 24 | 0 | 0% |
-| Phase 4: 핵심 기능 | 41 | 0 | 0% |
+| Phase 3: 온보딩 | 24 | 24 | 100% |
+| Phase 4: 핵심 기능 | 41 | 12 | 29% |
 | Phase 5: 구독 | 19 | 0 | 0% |
 | Phase 6: 설정 및 마무리 | 19 | 0 | 0% |
-| **전체** | **142** | **38** | **27%** |
+| **전체** | **142** | **74** | **52%** |
 
 ### 영역별 진행률
 
 | 영역 | 전체 태스크 | 완료 | 진행률 |
 |------|-------------|------|--------|
 | 🎨 FE (프론트엔드) | 50 | 15 | 30% |
-| ⚙️ BE (백엔드) | 84 | 15 | 18% |
+| ⚙️ BE (백엔드) | 84 | 51 | 61% |
 | 🔧 INFRA (인프라) | 8 | 8 | 100% |
-| **전체** | **142** | **38** | **27%** |
+| **전체** | **142** | **74** | **52%** |
 
 ---
 
@@ -441,6 +441,13 @@
 | 2026-01-11 | - | 한글 번역 완료 | Claude |
 | 2026-01-11 | - | FE/BE/INFRA 영역 분류 추가 | Claude |
 | 2026-01-11 | 2.1.1-2.4.6 | Phase 2 BE 작업 완료 (인증 및 사용자 관리) | Claude |
+| 2026-01-11 | 3.2.1-3.2.10 | Phase 3.2 BE 작업 완료 (블로그 연결) | Claude |
+| 2026-01-11 | 3.3.1-3.3.11 | Phase 3.3 BE 작업 완료 (AI API 키 등록) | Claude |
+| 2026-01-11 | 3.4.1, 3.4.4 | Phase 3.4 BE 작업 완료 (카테고리 선택) | Claude |
+| 2026-01-11 | 3.5.1-3.5.3 | Phase 3.5 BE 작업 완료 (스케줄 설정) | Claude |
+| 2026-01-11 | 4.1.3, 4.1.5, 4.1.7 | Phase 4.1 BE 작업 완료 (대시보드) | Claude |
+| 2026-01-11 | 4.2.1-4.2.7, 4.2.9 | Phase 4.2 BE 작업 완료 (키워드 수집) | Claude |
+| 2026-01-11 | 4.2.8 | 매시간 키워드 수집 Cron job 생성 완료 | Claude |
 
 ---
 

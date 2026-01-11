@@ -32,7 +32,7 @@ export function GoogleOAuthButton({
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}${window.location.pathname === '/auth/login' ? '/dashboard' : '/onboarding/connect-blog'}`,
+          redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
         },
       });
 

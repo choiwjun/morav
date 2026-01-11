@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,19 +8,70 @@ import { Input } from '@/components/ui/input';
 export default function ProfileSettingsPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    name: '홍길동',
-    email: 'hong@example.com',
+    name: '',
+    email: '',
   });
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordFormData, setPasswordFormData] = useState({
-    currentPassword: '',
     newPassword: '',
     confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 프로필 사진 업로드 핸들러
+  const handlePhotoUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 파일 크기 검증 (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setError('파일 크기는 2MB 이하여야 합니다.');
+      return;
+    }
+
+    // 파일 형식 검증
+    if (
+!['image/jpeg', 'image/png', 'image/jpg', 'image/webp'].includes(file.type)
+) {
+      setError('JPG 또는 PNG 파일만 업로드 가능합니다.');
+      return;
+    }
+
+    setError('');
+    // TODO: 파일 업로드 API 구현 (Supabase Storage 또는 기타 스토리지 사용)
+    console.log('파일 업로드:', file);
+  };
+
+  // 프로필 데이터 로드
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const response = await fetch('/api/user/profile');
+        const data = await response.json();
+
+        if (response.ok && data.profile) {
+          setFormData({
+            name: data.profile.name || '',
+            email: data.profile.email || '',
+          });
+        } else if (response.status === 401) {
+          // 인증되지 않은 경우 로그인 페이지로 이동
+          router.push('/auth/login');
+        }
+      } catch {
+        setError('프로필을 불러오는데 실패했습니다.');
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, [router]);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,14 +108,32 @@ export default function ProfileSettingsPage() {
     }
   };
 
+  // 비밀번호 복잡성 검증
+  const validatePassword = (password: string): { valid: boolean; error?: string } => {
+    if (password.length < 8) {
+      return { valid: false, error: '비밀번호는 최소 8자 이상이어야 합니다.' };
+    }
+    if (!/[A-Z]/.test(password)) {
+      return { valid: false, error: '비밀번호에 대문자를 포함해주세요.' };
+    }
+    if (!/[a-z]/.test(password)) {
+      return { valid: false, error: '비밀번호에 소문자를 포함해주세요.' };
+    }
+    if (!/[0-9]/.test(password)) {
+      return { valid: false, error: '비밀번호에 숫자를 포함해주세요.' };
+    }
+    return { valid: true };
+  };
+
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
-    // 비밀번호 검증
-    if (passwordFormData.newPassword.length < 8) {
-      setError('비밀번호는 8자 이상 입력해주세요.');
+    // 비밀번호 복잡성 검증
+    const passwordValidation = validatePassword(passwordFormData.newPassword);
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.error || '비밀번호 형식이 올바르지 않습니다.');
       return;
     }
 
@@ -90,7 +159,6 @@ export default function ProfileSettingsPage() {
       setSuccess('비밀번호가 변경되었습니다.');
       setShowPasswordModal(false);
       setPasswordFormData({
-        currentPassword: '',
         newPassword: '',
         confirmPassword: '',
       });
@@ -112,13 +180,14 @@ export default function ProfileSettingsPage() {
     setError('');
 
     try {
-      const { createClient } = await import('@/lib/supabase/client');
-      const supabase = createClient();
+      const response = await fetch('/api/user/delete', {
+        method: 'DELETE',
+      });
 
-      const { error } = await supabase.auth.signOut();
+      const data = await response.json();
 
-      if (error) {
-        throw new Error(error.message || '로그아웃에 실패했습니다.');
+      if (!response.ok) {
+        throw new Error(data.error || '계정 삭제에 실패했습니다.');
       }
 
       // 계정 삭제 후 랜딩페이지로 이동
@@ -127,6 +196,21 @@ export default function ProfileSettingsPage() {
       setError(err instanceof Error ? err.message : '계정 삭제에 실패했습니다.');
     }
   };
+
+  if (initialLoading) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+          <div className="space-y-8">
+            <div className="h-20 bg-gray-200 rounded"></div>
+            <div className="h-12 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-12 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -157,7 +241,12 @@ export default function ProfileSettingsPage() {
               </svg>
             </div>
             <div>
-              <Button variant="outline" size="sm" type="button">
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+              >
                 사진 변경
               </Button>
               <p className="text-xs text-gray-500 mt-2">
@@ -165,6 +254,13 @@ export default function ProfileSettingsPage() {
               </p>
             </div>
           </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/jpg,image/webp"
+            onChange={handlePhotoUpload}
+            className="hidden"
+          />
         </div>
 
         {/* 이름 */}
@@ -217,7 +313,7 @@ export default function ProfileSettingsPage() {
           <Button
             variant="outline"
             type="button"
-            onClick={() => router.back()}
+            onClick={() => router.push('/dashboard')}
           >
             취소
           </Button>
@@ -250,20 +346,6 @@ export default function ProfileSettingsPage() {
             <h3 className="text-xl font-bold mb-4">비밀번호 변경</h3>
 
             <form onSubmit={handlePasswordChange} className="space-y-4">
-              {/* 현재 비밀번호 */}
-              <div>
-                <label htmlFor="currentPassword" className="block text-sm font-medium mb-2">
-                  현재 비밀번호
-                </label>
-                <Input
-                  id="currentPassword"
-                  type="password"
-                  value={passwordFormData.currentPassword}
-                  onChange={(e) => setPasswordFormData({ ...passwordFormData, currentPassword: e.target.value })}
-                  required
-                />
-              </div>
-
               {/* 새 비밀번호 */}
               <div>
                 <label htmlFor="newPassword" className="block text-sm font-medium mb-2">
@@ -302,7 +384,6 @@ export default function ProfileSettingsPage() {
                   onClick={() => {
                     setShowPasswordModal(false);
                     setPasswordFormData({
-                      currentPassword: '',
                       newPassword: '',
                       confirmPassword: '',
                     });

@@ -45,6 +45,7 @@ export interface Database {
           blog_url: string;
           access_token: string;
           refresh_token: string | null;
+          token_expires_at: string | null;
           categories: string[];
           is_active: boolean;
           created_at: string;
@@ -58,6 +59,7 @@ export interface Database {
           blog_url: string;
           access_token: string;
           refresh_token?: string | null;
+          token_expires_at?: string | null;
           categories?: string[];
           is_active?: boolean;
           created_at?: string;
@@ -71,6 +73,7 @@ export interface Database {
           blog_url?: string;
           access_token?: string;
           refresh_token?: string | null;
+          token_expires_at?: string | null;
           categories?: string[];
           is_active?: boolean;
           created_at?: string;
@@ -92,6 +95,7 @@ export interface Database {
           provider: 'openai' | 'claude' | 'gemini' | 'grok';
           encrypted_key: string;
           is_valid: boolean;
+          last_verified_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -101,6 +105,7 @@ export interface Database {
           provider: 'openai' | 'claude' | 'gemini' | 'grok';
           encrypted_key: string;
           is_valid?: boolean;
+          last_verified_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -110,6 +115,7 @@ export interface Database {
           provider?: 'openai' | 'claude' | 'gemini' | 'grok';
           encrypted_key?: string;
           is_valid?: boolean;
+          last_verified_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -259,6 +265,46 @@ export interface Database {
         Relationships: [
           {
             foreignKeyName: 'subscriptions_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      schedules: {
+        Row: {
+          id: string;
+          user_id: string;
+          publish_time: string;
+          publish_days: string[];
+          timezone: string;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          publish_time?: string;
+          publish_days?: string[];
+          timezone?: string;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          publish_time?: string;
+          publish_days?: string[];
+          timezone?: string;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'schedules_user_id_fkey';
             columns: ['user_id'];
             referencedRelation: 'users';
             referencedColumns: ['id'];

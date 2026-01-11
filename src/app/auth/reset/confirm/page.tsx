@@ -1,14 +1,31 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
+// 비밀번호 복잡성 검증
+function validatePassword(password: string): { valid: boolean; error?: string } {
+  if (password.length < 8) {
+    return { valid: false, error: '비밀번호는 최소 8자 이상이어야 합니다.' };
+  }
+  if (!/[A-Z]/.test(password)) {
+    return { valid: false, error: '비밀번호에 대문자를 포함해주세요.' };
+  }
+  if (!/[a-z]/.test(password)) {
+    return { valid: false, error: '비밀번호에 소문자를 포함해주세요.' };
+  }
+  if (!/[0-9]/.test(password)) {
+    return { valid: false, error: '비밀번호에 숫자를 포함해주세요.' };
+  }
+  return { valid: true };
+}
+
 function ResetPasswordConfirmContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const access_token = searchParams.get('access_token');
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [hasValidToken, setHasValidToken] = useState(false);
 
   const [formData, setFormData] = useState({
     password: '',
@@ -18,21 +35,34 @@ function ResetPasswordConfirmContent() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
+  // URL에서 토큰 확인 (Supabase는 hash fragment로 토큰 전달)
   useEffect(() => {
-    // 토큰이 없으면 리다이렉트
-    if (!access_token) {
+    // hash fragment 또는 query param에서 토큰 확인
+    const hash = window.location.hash;
+    const searchParams = new URLSearchParams(window.location.search);
+
+    const hasToken =
+      hash.includes('access_token') ||
+      searchParams.has('access_token') ||
+      hash.includes('type=recovery');
+
+    setHasValidToken(hasToken);
+    setIsInitialized(true);
+
+    if (!hasToken) {
       router.push('/auth/reset');
     }
-  }, [access_token, router]);
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess(false);
 
-    // 비밀번호 검증
-    if (formData.password.length < 8) {
-      setError('비밀번호는 8자 이상 입력해주세요.');
+    // 비밀번호 복잡성 검증
+    const passwordValidation = validatePassword(formData.password);
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.error || '비밀번호 형식이 올바르지 않습니다.');
       return;
     }
 
@@ -67,6 +97,23 @@ function ResetPasswordConfirmContent() {
       setLoading(false);
     }
   };
+
+  // 초기화 전에는 로딩 표시
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto"></div>
+          <p className="mt-4 text-gray-600">로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 토큰이 없으면 빈 화면 (리다이렉트 중)
+  if (!hasValidToken) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -123,7 +170,7 @@ function ResetPasswordConfirmContent() {
                   minLength={8}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  영문, 숫자, 특수문자 조합 8자 이상
+                  대문자, 소문자, 숫자 포함 8자 이상
                 </p>
               </div>
 
