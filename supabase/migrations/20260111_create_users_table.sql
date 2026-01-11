@@ -64,6 +64,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- users 테이블에 updated_at 자동 업데이트 트리거
+DROP TRIGGER IF EXISTS update_users_updated_at ON public.users;
 CREATE TRIGGER update_users_updated_at
   BEFORE UPDATE ON public.users
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();

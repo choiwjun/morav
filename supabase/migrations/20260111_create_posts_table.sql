@@ -52,6 +52,7 @@ CREATE POLICY "Users can delete own posts"
   USING (auth.uid() = user_id);
 
 -- updated_at 자동 업데이트 트리거
+DROP TRIGGER IF EXISTS update_posts_updated_at ON public.posts;
 CREATE TRIGGER update_posts_updated_at
   BEFORE UPDATE ON public.posts
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();

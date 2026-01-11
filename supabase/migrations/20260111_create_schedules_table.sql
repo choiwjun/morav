@@ -53,6 +53,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS schedules_updated_at_trigger ON public.schedules;
 CREATE TRIGGER schedules_updated_at_trigger
   BEFORE UPDATE ON public.schedules
   FOR EACH ROW

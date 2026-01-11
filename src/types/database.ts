@@ -43,6 +43,8 @@ export interface Database {
           platform: 'tistory' | 'blogger' | 'wordpress';
           blog_name: string;
           blog_url: string;
+          external_blog_id: string | null;
+          username: string | null;
           access_token: string;
           refresh_token: string | null;
           token_expires_at: string | null;
@@ -57,6 +59,8 @@ export interface Database {
           platform: 'tistory' | 'blogger' | 'wordpress';
           blog_name: string;
           blog_url: string;
+          external_blog_id?: string | null;
+          username?: string | null;
           access_token: string;
           refresh_token?: string | null;
           token_expires_at?: string | null;
@@ -71,6 +75,8 @@ export interface Database {
           platform?: 'tistory' | 'blogger' | 'wordpress';
           blog_name?: string;
           blog_url?: string;
+          external_blog_id?: string | null;
+          username?: string | null;
           access_token?: string;
           refresh_token?: string | null;
           token_expires_at?: string | null;
@@ -136,6 +142,7 @@ export interface Database {
           source: 'naver' | 'google';
           trend_score: number;
           collected_at: string;
+          collected_hour: string;
         };
         Insert: {
           id?: string;
@@ -144,6 +151,7 @@ export interface Database {
           source: 'naver' | 'google';
           trend_score?: number;
           collected_at?: string;
+          collected_hour?: string;
         };
         Update: {
           id?: string;
@@ -152,6 +160,7 @@ export interface Database {
           source?: 'naver' | 'google';
           trend_score?: number;
           collected_at?: string;
+          collected_hour?: string;
         };
         Relationships: [];
       };

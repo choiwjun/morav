@@ -7,8 +7,24 @@ CREATE TABLE IF NOT EXISTS public.keywords (
   trend_score INTEGER DEFAULT 0 NOT NULL,
   collected_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   -- 1시간 단위 중복 방지를 위한 컬럼 (YYYY-MM-DD-HH 형식)
-  collected_hour TEXT GENERATED ALWAYS AS (to_char(collected_at AT TIME ZONE 'UTC', 'YYYY-MM-DD-HH24')) STORED
+  -- GENERATED ALWAYS AS는 AT TIME ZONE이 IMMUTABLE하지 않아 사용 불가
+  collected_hour TEXT NOT NULL DEFAULT to_char(NOW(), 'YYYY-MM-DD-HH24')
 );
+
+-- collected_hour 자동 설정 함수
+CREATE OR REPLACE FUNCTION public.set_keywords_collected_hour()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.collected_hour = to_char(COALESCE(NEW.collected_at, NOW()) AT TIME ZONE 'UTC', 'YYYY-MM-DD-HH24');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 트리거 생성 (기존 트리거 있으면 삭제)
+DROP TRIGGER IF EXISTS set_keywords_collected_hour_trigger ON public.keywords;
+CREATE TRIGGER set_keywords_collected_hour_trigger
+  BEFORE INSERT OR UPDATE ON public.keywords
+  FOR EACH ROW EXECUTE FUNCTION public.set_keywords_collected_hour();
 
 -- 인덱스 생성
 CREATE INDEX IF NOT EXISTS keywords_category_idx ON public.keywords(category);

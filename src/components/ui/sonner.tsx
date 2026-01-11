@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import {
   CircleCheckIcon,
   InfoIcon,
@@ -11,7 +12,15 @@ import { useTheme } from "next-themes"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Hydration mismatch 방지: 클라이언트 마운트 전까지 기본 테마 사용
+  const theme = mounted ? resolvedTheme : "light"
 
   return (
     <Sonner

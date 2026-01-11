@@ -49,6 +49,7 @@ CREATE POLICY "Users can delete own blogs"
   USING (auth.uid() = user_id);
 
 -- updated_at 자동 업데이트 트리거
+DROP TRIGGER IF EXISTS update_blogs_updated_at ON public.blogs;
 CREATE TRIGGER update_blogs_updated_at
   BEFORE UPDATE ON public.blogs
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();

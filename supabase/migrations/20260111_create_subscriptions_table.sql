@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
   plan TEXT NOT NULL DEFAULT 'free' CHECK (plan IN ('free', 'light', 'standard', 'pro', 'unlimited')),
   status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'cancelled', 'expired')),
   monthly_limit INTEGER NOT NULL DEFAULT 10,
-  usage_count INTEGER NOT NULL DEFAULT 0,
+  usage_count INTEGER NOT NULL DEFAULT 0 CHECK (usage_count >= 0),
   current_period_start TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   current_period_end TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '30 days') NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
@@ -39,6 +39,7 @@ CREATE POLICY "Users can update own subscription"
   USING (auth.uid() = user_id);
 
 -- updated_at 자동 업데이트 트리거
+DROP TRIGGER IF EXISTS update_subscriptions_updated_at ON public.subscriptions;
 CREATE TRIGGER update_subscriptions_updated_at
   BEFORE UPDATE ON public.subscriptions
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
