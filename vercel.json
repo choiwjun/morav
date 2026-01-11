@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/keywords",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/publish",
+      "schedule": "*/10 * * * *"
     }
   ]
 }

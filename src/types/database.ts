@@ -311,6 +311,110 @@ export interface Database {
           }
         ];
       };
+      payment_history: {
+        Row: {
+          id: string;
+          user_id: string;
+          payment_key: string;
+          order_id: string;
+          amount: number;
+          plan: 'free' | 'light' | 'standard' | 'pro' | 'unlimited';
+          status: 'completed' | 'cancelled' | 'failed';
+          method: string | null;
+          card_company: string | null;
+          card_number: string | null;
+          receipt_url: string | null;
+          cancelled_at: string | null;
+          cancel_reason: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          payment_key: string;
+          order_id: string;
+          amount: number;
+          plan: 'free' | 'light' | 'standard' | 'pro' | 'unlimited';
+          status?: 'completed' | 'cancelled' | 'failed';
+          method?: string | null;
+          card_company?: string | null;
+          card_number?: string | null;
+          receipt_url?: string | null;
+          cancelled_at?: string | null;
+          cancel_reason?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          payment_key?: string;
+          order_id?: string;
+          amount?: number;
+          plan?: 'free' | 'light' | 'standard' | 'pro' | 'unlimited';
+          status?: 'completed' | 'cancelled' | 'failed';
+          method?: string | null;
+          card_company?: string | null;
+          card_number?: string | null;
+          receipt_url?: string | null;
+          cancelled_at?: string | null;
+          cancel_reason?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'payment_history_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      notification_settings: {
+        Row: {
+          id: string;
+          user_id: string;
+          email_on_publish_success: boolean;
+          email_on_publish_fail: boolean;
+          email_on_subscription_change: boolean;
+          email_on_usage_limit: boolean;
+          email_marketing: boolean;
+          email_newsletter: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          email_on_publish_success?: boolean;
+          email_on_publish_fail?: boolean;
+          email_on_subscription_change?: boolean;
+          email_on_usage_limit?: boolean;
+          email_marketing?: boolean;
+          email_newsletter?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          email_on_publish_success?: boolean;
+          email_on_publish_fail?: boolean;
+          email_on_subscription_change?: boolean;
+          email_on_usage_limit?: boolean;
+          email_marketing?: boolean;
+          email_newsletter?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notification_settings_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

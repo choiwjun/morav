@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS public.blogs (
   platform TEXT NOT NULL CHECK (platform IN ('tistory', 'blogger', 'wordpress')),
   blog_name TEXT NOT NULL,
   blog_url TEXT NOT NULL,
+  external_blog_id TEXT, -- 외부 블로그 ID (Blogger API 등에서 사용)
+  username TEXT, -- WordPress 등에서 사용하는 사용자명
   access_token TEXT NOT NULL,
   refresh_token TEXT,
   token_expires_at TIMESTAMPTZ,

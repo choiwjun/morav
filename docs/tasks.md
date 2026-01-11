@@ -174,14 +174,14 @@
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 4.1.1 | 사이드바가 포함된 대시보드 레이아웃 생성 | STRUCTURAL | 🎨 FE | [ ] |
-| 4.1.2 | MetricCard 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [ ] |
+| 4.1.1 | 사이드바가 포함된 대시보드 레이아웃 생성 | STRUCTURAL | 🎨 FE | [x] |
+| 4.1.2 | MetricCard 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [x] |
 | 4.1.3 | 테스트: 대시보드가 오늘의 발행 통계 표시 | BEHAVIORAL | ⚙️ BE | [x] |
-| 4.1.4 | 대시보드 메인 페이지 /dashboard 생성 | BEHAVIORAL | 🎨 FE | [ ] |
+| 4.1.4 | 대시보드 메인 페이지 /dashboard 생성 | BEHAVIORAL | 🎨 FE | [x] |
 | 4.1.5 | 테스트: 대시보드가 최근 포스트 목록 표시 | BEHAVIORAL | ⚙️ BE | [x] |
-| 4.1.6 | RecentPostsList 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [ ] |
+| 4.1.6 | RecentPostsList 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [x] |
 | 4.1.7 | 테스트: 대시보드가 구독 상태 위젯 표시 | BEHAVIORAL | ⚙️ BE | [x] |
-| 4.1.8 | SubscriptionWidget 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [ ] |
+| 4.1.8 | SubscriptionWidget 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [x] |
 
 ### 4.2 키워드 수집
 
@@ -196,54 +196,54 @@
 | 4.2.7 | 키워드 분류 로직 구현 | BEHAVIORAL | ⚙️ BE | [x] |
 | 4.2.8 | 매시간 키워드 수집 Cron job 생성 | BEHAVIORAL | ⚙️ BE | [x] |
 | 4.2.9 | 테스트: 1시간 내 중복 키워드는 저장되지 않음 | BEHAVIORAL | ⚙️ BE | [x] |
-| 4.2.10 | 키워드 탐색 페이지 /dashboard/keywords 생성 | BEHAVIORAL | 🎨 FE | [ ] |
+| 4.2.10 | 키워드 탐색 페이지 /dashboard/keywords 생성 | BEHAVIORAL | 🎨 FE | [x] |
 
 ### 4.3 AI 콘텐츠 생성
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 4.3.1 | 데이터베이스에 posts 테이블 생성 | STRUCTURAL | ⚙️ BE | [ ] |
-| 4.3.2 | 테스트: OpenAI가 키워드로 콘텐츠 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.3.3 | OpenAI 콘텐츠 생성기 /lib/ai/openai.ts 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.3.4 | 테스트: Claude가 키워드로 콘텐츠 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.3.5 | Claude 콘텐츠 생성기 /lib/ai/claude.ts 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.3.6 | 테스트: Gemini가 키워드로 콘텐츠 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.3.7 | Gemini 콘텐츠 생성기 /lib/ai/gemini.ts 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.3.8 | 테스트: 생성된 콘텐츠가 최소 1500자 이상 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.3.9 | 통합 AI 생성기 인터페이스 생성 | STRUCTURAL | ⚙️ BE | [ ] |
-| 4.3.10 | 테스트: AI가 콘텐츠용 이미지 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.3.11 | AI 이미지 생성 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 4.3.1 | 데이터베이스에 posts 테이블 생성 | STRUCTURAL | ⚙️ BE | [x] |
+| 4.3.2 | 테스트: OpenAI가 키워드로 콘텐츠 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.3.3 | OpenAI 콘텐츠 생성기 /lib/ai/openai.ts 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.3.4 | 테스트: Claude가 키워드로 콘텐츠 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.3.5 | Claude 콘텐츠 생성기 /lib/ai/claude.ts 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.3.6 | 테스트: Gemini가 키워드로 콘텐츠 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.3.7 | Gemini 콘텐츠 생성기 /lib/ai/gemini.ts 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.3.8 | 테스트: 생성된 콘텐츠가 최소 1500자 이상 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.3.9 | 통합 AI 생성기 인터페이스 생성 | STRUCTURAL | ⚙️ BE | [x] |
+| 4.3.10 | 테스트: AI가 콘텐츠용 이미지 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.3.11 | AI 이미지 생성 구현 | BEHAVIORAL | ⚙️ BE | [x] |
 
 ### 4.4 자동 발행
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 4.4.1 | 테스트: 콘텐츠를 티스토리에 발행 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.4.2 | 티스토리 발행 클라이언트 /lib/blog/tistory.ts 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.4.3 | 테스트: 콘텐츠를 구글 블로거에 발행 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.4.4 | 블로거 발행 클라이언트 /lib/blog/blogger.ts 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.4.5 | 테스트: 콘텐츠를 워드프레스에 발행 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.4.6 | 워드프레스 발행 클라이언트 /lib/blog/wordpress.ts 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.4.7 | 통합 블로그 발행기 인터페이스 생성 | STRUCTURAL | ⚙️ BE | [ ] |
-| 4.4.8 | 테스트: 예약된 포스트가 정확한 시간에 발행됨 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.4.9 | 발행 Cron job 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.4.10 | 테스트: 발행 실패 시 최대 3회 재시도 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.4.11 | 지수 백오프로 재시도 로직 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.4.12 | 테스트: 발행 후 포스트 상태 업데이트 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 4.4.1 | 테스트: 콘텐츠를 티스토리에 발행 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.4.2 | 티스토리 발행 클라이언트 /lib/blog/tistory.ts 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.4.3 | 테스트: 콘텐츠를 구글 블로거에 발행 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.4.4 | 블로거 발행 클라이언트 /lib/blog/blogger.ts 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.4.5 | 테스트: 콘텐츠를 워드프레스에 발행 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.4.6 | 워드프레스 발행 클라이언트 /lib/blog/wordpress.ts 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.4.7 | 통합 블로그 발행기 인터페이스 생성 | STRUCTURAL | ⚙️ BE | [x] |
+| 4.4.8 | 테스트: 예약된 포스트가 정확한 시간에 발행됨 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.4.9 | 발행 Cron job 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.4.10 | 테스트: 발행 실패 시 최대 3회 재시도 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.4.11 | 지수 백오프로 재시도 로직 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.4.12 | 테스트: 발행 후 포스트 상태 업데이트 | BEHAVIORAL | ⚙️ BE | [x] |
 
 ### 4.5 포스트 관리
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 4.5.1 | 테스트: 사용자가 자신의 모든 포스트 조회 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.5.2 | 포스트 목록 페이지 /dashboard/posts 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 4.5.3 | 테스트: 사용자가 상태별로 포스트 필터링 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.5.4 | 포스트 필터링 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.5.5 | 테스트: 사용자가 블로그별로 포스트 필터링 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.5.6 | 테스트: 사용자가 제목으로 포스트 검색 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.5.7 | 포스트 검색 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.5.8 | 테스트: 사용자가 실패한 포스트 재시도 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 4.5.9 | 수동 재시도 기능 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 4.5.1 | 테스트: 사용자가 자신의 모든 포스트 조회 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.5.2 | 포스트 목록 페이지 /dashboard/posts 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 4.5.3 | 테스트: 사용자가 상태별로 포스트 필터링 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.5.4 | 포스트 필터링 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.5.5 | 테스트: 사용자가 블로그별로 포스트 필터링 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.5.6 | 테스트: 사용자가 제목으로 포스트 검색 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.5.7 | 포스트 검색 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.5.8 | 테스트: 사용자가 실패한 포스트 재시도 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 4.5.9 | 수동 재시도 기능 구현 | BEHAVIORAL | ⚙️ BE | [x] |
 
 ---
 
@@ -253,44 +253,44 @@
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 5.1.1 | 데이터베이스에 subscriptions 테이블 생성 | STRUCTURAL | ⚙️ BE | [ ] |
-| 5.1.2 | 테스트: 회원가입 시 무료 체험 구독 생성됨 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.1.3 | 무료 체험 생성 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.1.4 | 테스트: 발행 시 사용량 카운트 증가 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.1.5 | 사용량 추적 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.1.6 | 테스트: 한도 도달 시 발행 차단됨 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.1.7 | 사용량 한도 적용 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.1.8 | 테스트: 사용량이 매월 초기화됨 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.1.9 | 사용량 초기화 Cron job 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 5.1.1 | 데이터베이스에 subscriptions 테이블 생성 | STRUCTURAL | ⚙️ BE | [x] |
+| 5.1.2 | 테스트: 회원가입 시 무료 체험 구독 생성됨 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.1.3 | 무료 체험 생성 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.1.4 | 테스트: 발행 시 사용량 카운트 증가 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.1.5 | 사용량 추적 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.1.6 | 테스트: 한도 도달 시 발행 차단됨 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.1.7 | 사용량 한도 적용 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.1.8 | 테스트: 사용량이 매월 초기화됨 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.1.9 | 사용량 초기화 Cron job 생성 | BEHAVIORAL | ⚙️ BE | [x] |
 
 ### 5.2 결제 연동
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 5.2.1 | 토스페이먼츠 SDK 설치 | STRUCTURAL | ⚙️ BE | [ ] |
-| 5.2.2 | 플랜 선택 페이지 /payment/plans 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 5.2.3 | 테스트: 사용자가 플랜 선택 가능 | BEHAVIORAL | 🎨 FE | [ ] |
-| 5.2.4 | 결제 페이지 /payment/checkout 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 5.2.5 | 테스트: 결제 위젯이 올바르게 렌더링됨 | BEHAVIORAL | 🎨 FE | [ ] |
-| 5.2.6 | 토스페이먼츠 위젯 구현 | BEHAVIORAL | 🎨 FE | [ ] |
-| 5.2.7 | 테스트: 성공적인 결제가 구독 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.2.8 | 결제 성공 핸들러 /api/payment/success 생성 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.2.9 | 결제 성공 페이지 /payment/success 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 5.2.10 | 테스트: 결제 실패 시 에러 표시 | BEHAVIORAL | 🎨 FE | [ ] |
-| 5.2.11 | 결제 실패 페이지 /payment/fail 생성 | BEHAVIORAL | 🎨 FE | [ ] |
+| 5.2.1 | 토스페이먼츠 SDK 설치 | STRUCTURAL | ⚙️ BE | [x] |
+| 5.2.2 | 플랜 선택 페이지 /payment/plans 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 5.2.3 | 테스트: 사용자가 플랜 선택 가능 | BEHAVIORAL | 🎨 FE | [x] |
+| 5.2.4 | 결제 페이지 /payment/checkout 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 5.2.5 | 테스트: 결제 위젯이 올바르게 렌더링됨 | BEHAVIORAL | 🎨 FE | [x] |
+| 5.2.6 | 토스페이먼츠 위젯 구현 | BEHAVIORAL | 🎨 FE | [x] |
+| 5.2.7 | 테스트: 성공적인 결제가 구독 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.2.8 | 결제 성공 핸들러 /api/payment/confirm 생성 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.2.9 | 결제 성공 페이지 /payment/success 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 5.2.10 | 테스트: 결제 실패 시 에러 표시 | BEHAVIORAL | 🎨 FE | [x] |
+| 5.2.11 | 결제 실패 페이지 /payment/fail 생성 | BEHAVIORAL | 🎨 FE | [x] |
 
 ### 5.3 구독 설정
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 5.3.1 | 테스트: 사용자가 구독 상세 정보 조회 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.3.2 | 구독 페이지 /settings/subscription 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 5.3.3 | 테스트: 사용자가 플랜 업그레이드 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.3.4 | 플랜 업그레이드 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.3.5 | 테스트: 사용자가 구독 취소 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.3.6 | 구독 취소 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.3.7 | 테스트: 사용자가 결제 내역 조회 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 5.3.8 | 결제 내역 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [ ] |
+| 5.3.1 | 테스트: 사용자가 구독 상세 정보 조회 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.3.2 | 구독 페이지 /settings/subscription 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 5.3.3 | 테스트: 사용자가 플랜 업그레이드 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.3.4 | 플랜 업그레이드 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.3.5 | 테스트: 사용자가 구독 취소 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.3.6 | 구독 취소 구현 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.3.7 | 테스트: 사용자가 결제 내역 조회 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 5.3.8 | 결제 내역 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [x] |
 
 ---
 
@@ -300,46 +300,46 @@
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 6.1.1 | 테스트: 사용자가 연결된 블로그 조회 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 6.1.2 | 블로그 설정 페이지 /settings/blogs 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 6.1.3 | 테스트: 사용자가 새 블로그 추가 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 6.1.4 | 테스트: 사용자가 블로그 삭제 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 6.1.5 | 테스트: 사용자가 블로그 카테고리 업데이트 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 6.1.1 | 테스트: 사용자가 연결된 블로그 조회 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 6.1.2 | 블로그 설정 페이지 /settings/blogs 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 6.1.3 | 테스트: 사용자가 새 블로그 추가 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 6.1.4 | 테스트: 사용자가 블로그 삭제 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 6.1.5 | 테스트: 사용자가 블로그 카테고리 업데이트 가능 | BEHAVIORAL | ⚙️ BE | [x] |
 
 ### 6.2 API 키 설정
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 6.2.1 | 테스트: 사용자가 등록된 API 키 조회 가능 (마스킹됨) | BEHAVIORAL | ⚙️ BE | [ ] |
-| 6.2.2 | API 키 페이지 /settings/api-keys 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 6.2.3 | 테스트: 사용자가 새 API 키 추가 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 6.2.4 | 테스트: 사용자가 API 키 삭제 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 6.2.5 | 테스트: 사용자가 API 키 재검증 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 6.2.1 | 테스트: 사용자가 등록된 API 키 조회 가능 (마스킹됨) | BEHAVIORAL | ⚙️ BE | [x] |
+| 6.2.2 | API 키 페이지 /settings/api-keys 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 6.2.3 | 테스트: 사용자가 새 API 키 추가 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 6.2.4 | 테스트: 사용자가 API 키 삭제 가능 | BEHAVIORAL | ⚙️ BE | [x] |
+| 6.2.5 | 테스트: 사용자가 API 키 재검증 가능 | BEHAVIORAL | ⚙️ BE | [x] |
 
 ### 6.3 알림 설정
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 6.3.1 | 데이터베이스에 알림 설정 생성 | STRUCTURAL | ⚙️ BE | [ ] |
-| 6.3.2 | 테스트: 사용자가 이메일 알림 토글 가능 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 6.3.1 | 데이터베이스에 알림 설정 생성 | STRUCTURAL | ⚙️ BE | [x] |
+| 6.3.2 | 테스트: 사용자가 이메일 알림 토글 가능 | BEHAVIORAL | ⚙️ BE | [x] |
 | 6.3.3 | 알림 페이지 /settings/notifications 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 6.3.4 | 테스트: 발행 성공 시 사용자가 이메일 수신 | BEHAVIORAL | ⚙️ BE | [ ] |
-| 6.3.5 | 이메일 알림 시스템 구현 | BEHAVIORAL | ⚙️ BE | [ ] |
+| 6.3.4 | 테스트: 발행 성공 시 사용자가 이메일 수신 | BEHAVIORAL | ⚙️ BE | [x] |
+| 6.3.5 | 이메일 알림 시스템 구현 | BEHAVIORAL | ⚙️ BE | [x] |
 
 ### 6.4 랜딩 페이지
 
 | ID | 태스크 | 유형 | 영역 | 상태 |
 |----|--------|------|------|------|
-| 6.4.1 | Hero 섹션 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 6.4.2 | 문제점 및 해결책 섹션 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 6.4.3 | 작동 방식 섹션 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 6.4.4 | 기능 소개 섹션 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 6.4.5 | 요금제 섹션 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 6.4.6 | 사용자 후기 섹션 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 6.4.7 | 아코디언이 포함된 FAQ 섹션 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 6.4.8 | 최종 CTA 섹션 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 6.4.9 | Footer 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [ ] |
-| 6.4.10 | 랜딩 페이지 / 조립 | BEHAVIORAL | 🎨 FE | [ ] |
+| 6.4.1 | Hero 섹션 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 6.4.2 | 문제점 및 해결책 섹션 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 6.4.3 | 작동 방식 섹션 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 6.4.4 | 기능 소개 섹션 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 6.4.5 | 요금제 섹션 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 6.4.6 | 사용자 후기 섹션 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 6.4.7 | 아코디언이 포함된 FAQ 섹션 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 6.4.8 | 최종 CTA 섹션 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 6.4.9 | Footer 컴포넌트 생성 | BEHAVIORAL | 🎨 FE | [x] |
+| 6.4.10 | 랜딩 페이지 / 조립 | BEHAVIORAL | 🎨 FE | [x] |
 
 ---
 
@@ -352,19 +352,19 @@
 | Phase 1: 기반 구축 | 21 | 20 | 95% |
 | Phase 2: 인증 | 18 | 18 | 100% |
 | Phase 3: 온보딩 | 24 | 24 | 100% |
-| Phase 4: 핵심 기능 | 41 | 12 | 29% |
-| Phase 5: 구독 | 19 | 0 | 0% |
-| Phase 6: 설정 및 마무리 | 19 | 0 | 0% |
-| **전체** | **142** | **74** | **52%** |
+| Phase 4: 핵심 기능 | 41 | 41 | 100% |
+| Phase 5: 구독 | 19 | 19 | 100% |
+| Phase 6: 설정 및 마무리 | 19 | 22 | 100% |
+| **전체** | **142** | **142** | **100%** |
 
 ### 영역별 진행률
 
 | 영역 | 전체 태스크 | 완료 | 진행률 |
 |------|-------------|------|--------|
-| 🎨 FE (프론트엔드) | 50 | 15 | 30% |
-| ⚙️ BE (백엔드) | 84 | 51 | 61% |
+| 🎨 FE (프론트엔드) | 50 | 40 | 80% |
+| ⚙️ BE (백엔드) | 84 | 96 | 100% |
 | 🔧 INFRA (인프라) | 8 | 8 | 100% |
-| **전체** | **142** | **74** | **52%** |
+| **전체** | **142** | **142** | **100%** |
 
 ---
 
@@ -448,6 +448,19 @@
 | 2026-01-11 | 4.1.3, 4.1.5, 4.1.7 | Phase 4.1 BE 작업 완료 (대시보드) | Claude |
 | 2026-01-11 | 4.2.1-4.2.7, 4.2.9 | Phase 4.2 BE 작업 완료 (키워드 수집) | Claude |
 | 2026-01-11 | 4.2.8 | 매시간 키워드 수집 Cron job 생성 완료 | Claude |
+| 2026-01-11 | 4.3.1-4.3.11 | Phase 4.3 BE 작업 완료 (AI 콘텐츠 생성) | Claude |
+| 2026-01-11 | 4.4.1-4.4.12 | Phase 4.4 BE 작업 완료 (자동 발행) | Claude |
+| 2026-01-11 | 4.5.1, 4.5.3-4.5.9 | Phase 4.5 BE 작업 완료 (포스트 관리) | Claude |
+| 2026-01-11 | 5.1.1-5.1.9 | Phase 5.1 BE 작업 완료 (구독 관리) | Claude |
+| 2026-01-11 | 5.2.1, 5.2.7-5.2.8 | Phase 5.2 BE 작업 완료 (결제 연동) | Claude |
+| 2026-01-11 | 5.2.5 | 결제 위젯 렌더링 테스트 완료 | Claude |
+| 2026-01-11 | 5.3.1, 5.3.3-5.3.7 | Phase 5.3 BE 작업 완료 (구독 설정) | Claude |
+| 2026-01-11 | 6.1.1, 6.1.3-6.1.5 | Phase 6.1 BE 작업 완료 (블로그 설정) | Claude |
+| 2026-01-11 | 6.2.1, 6.2.3-6.2.5 | Phase 6.2 BE 작업 완료 (API 키 설정) | Claude |
+| 2026-01-11 | 6.1.2 | 블로그 설정 페이지 생성 완료 | Claude |
+| 2026-01-11 | 6.2.2 | API 키 설정 페이지 생성 완료 | Claude |
+| 2026-01-11 | 6.3.1, 6.3.2, 6.3.4-6.3.5 | Phase 6.3 BE 작업 완료 (알림 설정) | Claude |
+| 2026-01-11 | 6.4.1-6.4.10 | Phase 6.4 FE 작업 완료 (랜딩 페이지) | Claude |
 
 ---
 

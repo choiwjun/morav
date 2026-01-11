@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { createFreeTrialSubscription } from '@/lib/subscription';
 
 // RFC 5322 기반 이메일 검증 정규식
 function isValidEmail(email: string): boolean {
@@ -68,6 +69,15 @@ export async function POST(request: Request) {
         { error: error.message },
         { status: 400 }
       );
+    }
+
+    // 회원가입 성공 시 무료 체험 구독 생성
+    if (data.user) {
+      const subscriptionResult = await createFreeTrialSubscription(data.user.id);
+      if (!subscriptionResult.success) {
+        console.error('Failed to create free trial subscription:', subscriptionResult.error);
+        // 구독 생성 실패해도 회원가입은 성공으로 처리
+      }
     }
 
     return NextResponse.json({
