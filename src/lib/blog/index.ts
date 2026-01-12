@@ -12,6 +12,8 @@ import { publishToTistory } from './tistory';
 import { publishToBlogger } from './blogger';
 import { publishToWordPress } from './wordpress';
 import { checkUsageLimit, incrementUsage } from '@/lib/subscription';
+import { ensureValidToken } from './token-refresh';
+import { sendPublishSuccessEmail, sendPublishFailEmail, sendUsageLimitEmail } from '@/lib/email';
 
 // Re-export types
 export type { BlogPlatform, PublishParams, PublishResult, BlogCredentials, RetryConfig } from './types';
@@ -58,15 +60,34 @@ async function getBlogCredentials(blogId: string): Promise<{
       username: string | null;
     };
 
+    const platform = blogData.platform as BlogPlatform;
+
+    // OAuth 토큰 갱신이 필요한 플랫폼 처리 (blogger)
+    let accessToken: string;
+    if (platform === 'blogger') {
+      const tokenResult = await ensureValidToken(blogId, platform);
+      if (!tokenResult.success || !tokenResult.accessToken) {
+        return {
+          credentials: null,
+          platform: null,
+          error: tokenResult.error || '토큰 갱신에 실패했습니다.',
+        };
+      }
+      accessToken = tokenResult.accessToken;
+    } else {
+      // 티스토리, 워드프레스 등은 장기 토큰 사용
+      accessToken = decrypt(blogData.access_token);
+    }
+
     const credentials: BlogCredentials = {
-      accessToken: decrypt(blogData.access_token),
+      accessToken,
       refreshToken: blogData.refresh_token ? decrypt(blogData.refresh_token) : undefined,
       blogId: blogData.external_blog_id || undefined,
       blogUrl: blogData.blog_url,
       username: blogData.username || undefined,
     };
 
-    return { credentials, platform: blogData.platform as BlogPlatform };
+    return { credentials, platform };
   } catch (error) {
     console.error('Get blog credentials error:', error);
     return { credentials: null, platform: null, error: '블로그 정보 조회 중 오류가 발생했습니다.' };
@@ -192,6 +213,26 @@ export async function publishAndUpdatePost(
         })
         .eq('id', postId);
 
+      // 발행 성공 이메일 발송 (비동기로 처리, 실패해도 무시)
+      if (user.email && result.postUrl) {
+        sendPublishSuccessEmail(user.id, user.email, post.title, result.postUrl).catch((err) =>
+          console.error('Failed to send publish success email:', err)
+        );
+      }
+
+      // 사용량 한도 임박 알림 (80% 이상 사용시)
+      // usageCheck는 발행 전 상태이므로 +1 해서 계산
+      const currentUsage = (usageCheck.usageCount || 0) + 1;
+      const monthlyLimit = usageCheck.monthlyLimit || 0;
+      if (monthlyLimit > 0) {
+        const usageRatio = currentUsage / monthlyLimit;
+        if (usageRatio >= 0.8 && user.email) {
+          sendUsageLimitEmail(user.id, user.email, currentUsage, monthlyLimit).catch((err) =>
+            console.error('Failed to send usage limit email:', err)
+          );
+        }
+      }
+
       return { success: true, postUrl: result.postUrl };
     } else {
       // 실패 - 재시도 횟수 증가
@@ -206,6 +247,13 @@ export async function publishAndUpdatePost(
           error_message: result.error,
         })
         .eq('id', postId);
+
+      // 최종 실패시 이메일 발송
+      if (newStatus === 'failed' && user.email) {
+        sendPublishFailEmail(user.id, user.email, post.title, result.error || '알 수 없는 오류').catch(
+          (err) => console.error('Failed to send publish fail email:', err)
+        );
+      }
 
       return { success: false, error: result.error };
     }

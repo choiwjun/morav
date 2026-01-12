@@ -124,12 +124,31 @@ function parseGoogleRssResponse(xmlText: string): TrendKeyword[] {
 }
 
 /**
- * 대체 방법: mock 데이터 반환
- * 구글 트렌드 API가 실패할 경우 사용
+ * 대체 방법: SerpAPI를 통한 구글 트렌드 수집 또는 mock 데이터 반환
+ * 구글 트렌드 RSS가 실패할 경우 사용
  */
 async function collectGoogleTrendsAlternative(): Promise<KeywordCollectionResult> {
   const collectedAt = new Date().toISOString();
 
+  // SerpAPI 키가 설정된 경우 사용
+  const serpApiKey = process.env.SERPAPI_KEY;
+  if (serpApiKey) {
+    try {
+      const keywords = await collectFromSerpAPI(serpApiKey);
+      if (keywords.length > 0) {
+        return {
+          success: true,
+          keywords,
+          source: 'google',
+          collectedAt,
+        };
+      }
+    } catch (error) {
+      console.error('SerpAPI error:', error);
+    }
+  }
+
+  // API 키가 없거나 실패한 경우 mock 데이터 사용
   try {
     const mockKeywords = await getMockGoogleKeywords();
 
@@ -147,6 +166,53 @@ async function collectGoogleTrendsAlternative(): Promise<KeywordCollectionResult
       source: 'google',
       collectedAt,
     };
+  }
+}
+
+/**
+ * SerpAPI를 통한 구글 트렌드 수집
+ */
+async function collectFromSerpAPI(apiKey: string): Promise<TrendKeyword[]> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+  try {
+    const url = new URL('https://serpapi.com/search.json');
+    url.searchParams.set('engine', 'google_trends_trending_now');
+    url.searchParams.set('geo', 'KR');
+    url.searchParams.set('api_key', apiKey);
+
+    const response = await fetch(url.toString(), {
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(`SerpAPI error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const keywords: TrendKeyword[] = [];
+
+    // SerpAPI 응답 구조에 맞게 파싱
+    const trendingSearches = data.trending_searches || data.daily_searches || [];
+    trendingSearches.slice(0, 20).forEach((item: { query?: string; title?: string }, index: number) => {
+      const keyword = item.query || item.title;
+      if (keyword) {
+        const classification = classifyKeyword(keyword);
+        keywords.push({
+          keyword,
+          rank: index + 1,
+          category: classification.category,
+          trendScore: calculateTrendScore(index + 1),
+        });
+      }
+    });
+
+    return keywords;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 

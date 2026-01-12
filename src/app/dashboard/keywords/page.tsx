@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Tag, TrendingUp, Clock, Sparkles } from 'lucide-react';
+import { RefreshCw, Tag, TrendingUp, Clock, Sparkles, X } from 'lucide-react';
 import { CATEGORIES, getCategoryById } from '@/lib/constants/categories';
 import { StoredKeyword } from '@/lib/keywords/types';
 import { toast } from 'sonner';
@@ -18,16 +18,33 @@ interface KeywordsResponse {
   error?: string;
 }
 
+interface Blog {
+  id: string;
+  blog_name: string;
+  platform: string;
+}
+
+interface BlogsResponse {
+  success: boolean;
+  blogs?: Blog[];
+  error?: string;
+}
+
 function getSourceLabel(source: 'naver' | 'google'): string {
   return source === 'naver' ? '네이버' : '구글';
 }
 
 export default function KeywordsPage() {
   const [keywords, setKeywords] = useState<StoredKeyword[]>([]);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [sortOrder, setSortOrder] = useState<'recent' | 'trending'>('recent');
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [selectedKeyword, setSelectedKeyword] = useState<StoredKeyword | null>(null);
+  const [selectedBlogId, setSelectedBlogId] = useState<string>('');
+  const [generating, setGenerating] = useState(false);
 
   const loadKeywords = async () => {
     try {
@@ -58,8 +75,25 @@ export default function KeywordsPage() {
     }
   };
 
+  const loadBlogs = async () => {
+    try {
+      const response = await fetch('/api/user/blogs');
+      const data: BlogsResponse = await response.json();
+
+      if (data.success && data.blogs) {
+        setBlogs(data.blogs);
+        if (data.blogs.length > 0) {
+          setSelectedBlogId(data.blogs[0].id);
+        }
+      }
+    } catch (error) {
+      console.error('Load blogs error:', error);
+    }
+  };
+
   useEffect(() => {
     loadKeywords();
+    loadBlogs();
   }, [categoryFilter, sortOrder]);
 
   const handleRefresh = () => {
@@ -68,8 +102,47 @@ export default function KeywordsPage() {
   };
 
   const handleGenerateFromKeyword = (keyword: StoredKeyword) => {
-    // TODO: 향후 콘텐츠 생성 기능 구현
-    toast.info(`"${keyword.keyword}" 키워드로 콘텐츠 생성 기능은 곧 제공될 예정입니다.`);
+    if (blogs.length === 0) {
+      toast.error('먼저 블로그를 연결해주세요.');
+      return;
+    }
+    setSelectedKeyword(keyword);
+    setShowGenerateModal(true);
+  };
+
+  const handleGenerate = async () => {
+    if (!selectedKeyword || !selectedBlogId) {
+      toast.error('키워드와 블로그를 선택해주세요.');
+      return;
+    }
+
+    setGenerating(true);
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          keyword: selectedKeyword.keyword,
+          keywordId: selectedKeyword.id,
+          blogId: selectedBlogId,
+          category: selectedKeyword.category,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('콘텐츠가 생성되었습니다! 발행 관리에서 확인하세요.');
+        setShowGenerateModal(false);
+      } else {
+        toast.error(data.error || '콘텐츠 생성에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Generate error:', error);
+      toast.error('콘텐츠 생성 중 오류가 발생했습니다.');
+    } finally {
+      setGenerating(false);
+    }
   };
 
   return (
@@ -182,6 +255,79 @@ export default function KeywordsPage() {
               </Card>
             );
           })}
+        </div>
+      )}
+
+      {/* 콘텐츠 생성 모달 */}
+      {showGenerateModal && selectedKeyword && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-md mx-4">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold">콘텐츠 생성</h3>
+                <button
+                  onClick={() => setShowGenerateModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    키워드
+                  </label>
+                  <p className="text-gray-900 font-semibold">{selectedKeyword.keyword}</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    발행할 블로그
+                  </label>
+                  <select
+                    value={selectedBlogId}
+                    onChange={(e) => setSelectedBlogId(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {blogs.map((blog) => (
+                      <option key={blog.id} value={blog.id}>
+                        {blog.blog_name} ({blog.platform})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setShowGenerateModal(false)}
+                    disabled={generating}
+                  >
+                    취소
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    onClick={handleGenerate}
+                    disabled={generating}
+                  >
+                    {generating ? (
+                      <>
+                        <RefreshCw size={16} className="animate-spin mr-2" />
+                        생성 중...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={16} className="mr-2" />
+                        생성하기
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
     </div>

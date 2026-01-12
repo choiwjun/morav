@@ -1,15 +1,27 @@
-// 네이버 트렌드 키워드 스크래퍼
+// 네이버 트렌드 키워드 수집기
 
 import { TrendKeyword, KeywordCollectionResult } from './types';
 import { classifyKeyword } from './classifier';
 
 const NAVER_DATALAB_URL = 'https://datalab.naver.com/keyword/realtimeList.naver';
+const NAVER_SHOPPING_TREND_URL = 'https://openapi.naver.com/v1/datalab/shopping/categories';
 const REQUEST_TIMEOUT = 10000; // 10초
 
 interface NaverRealtimeKeyword {
   rank: number;
   keyword: string;
   linkUrl?: string;
+}
+
+interface NaverShoppingTrendResponse {
+  startDate: string;
+  endDate: string;
+  timeUnit: string;
+  results: Array<{
+    title: string;
+    category: string[];
+    data: Array<{ period: string; ratio: number }>;
+  }>;
 }
 
 /**
@@ -97,15 +109,34 @@ function parseNaverResponse(data: unknown): TrendKeyword[] {
 }
 
 /**
- * 대체 방법: 네이버 인기 검색어 페이지 스크래핑
+ * 대체 방법: 네이버 쇼핑 트렌드 API 사용
  * 실시간 검색어 API가 실패할 경우 사용
  */
 async function collectNaverTrendsAlternative(): Promise<KeywordCollectionResult> {
   const collectedAt = new Date().toISOString();
 
+  // 네이버 API 키가 설정된 경우 공식 API 사용
+  const clientId = process.env.NAVER_CLIENT_ID;
+  const clientSecret = process.env.NAVER_CLIENT_SECRET;
+
+  if (clientId && clientSecret) {
+    try {
+      const keywords = await collectFromNaverShoppingAPI(clientId, clientSecret);
+      if (keywords.length > 0) {
+        return {
+          success: true,
+          keywords,
+          source: 'naver',
+          collectedAt,
+        };
+      }
+    } catch (error) {
+      console.error('Naver Shopping API error:', error);
+    }
+  }
+
+  // API 키가 없거나 실패한 경우 mock 데이터 사용
   try {
-    // 네이버 쇼핑 인기 검색어 또는 연관 검색어를 대체로 사용
-    // 실제 환경에서는 네이버 API 키를 사용하여 공식 API 호출
     const mockKeywords = await getMockNaverKeywords();
 
     return {
@@ -122,6 +153,72 @@ async function collectNaverTrendsAlternative(): Promise<KeywordCollectionResult>
       source: 'naver',
       collectedAt,
     };
+  }
+}
+
+/**
+ * 네이버 쇼핑 트렌드 API를 통한 키워드 수집
+ */
+async function collectFromNaverShoppingAPI(
+  clientId: string,
+  clientSecret: string
+): Promise<TrendKeyword[]> {
+  const endDate = new Date();
+  const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  const formatDate = (date: Date) => date.toISOString().split('T')[0];
+
+  // 주요 쇼핑 카테고리별 트렌드 조회
+  const categories = [
+    { name: '패션의류', code: '50000000' },
+    { name: '디지털/가전', code: '50000001' },
+    { name: '생활/건강', code: '50000002' },
+    { name: '식품', code: '50000003' },
+  ];
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+  try {
+    const response = await fetch(NAVER_SHOPPING_TREND_URL, {
+      method: 'POST',
+      headers: {
+        'X-Naver-Client-Id': clientId,
+        'X-Naver-Client-Secret': clientSecret,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        startDate: formatDate(startDate),
+        endDate: formatDate(endDate),
+        timeUnit: 'date',
+        category: categories.map((c) => ({ name: c.name, param: [c.code] })),
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(`Naver API error: ${response.status}`);
+    }
+
+    const data: NaverShoppingTrendResponse = await response.json();
+    const keywords: TrendKeyword[] = [];
+
+    data.results.forEach((result, index) => {
+      const latestRatio = result.data[result.data.length - 1]?.ratio || 0;
+      const classification = classifyKeyword(result.title);
+      keywords.push({
+        keyword: result.title,
+        rank: index + 1,
+        category: classification.category,
+        trendScore: Math.round(latestRatio),
+      });
+    });
+
+    return keywords;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 

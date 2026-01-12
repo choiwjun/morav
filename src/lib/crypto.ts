@@ -49,16 +49,35 @@ export function decrypt(encryptedText: string): string {
 
   const [saltHex, ivHex, authTagHex, encrypted] = parts;
 
-  const salt = Buffer.from(saltHex, 'hex');
-  const iv = Buffer.from(ivHex, 'hex');
-  const authTag = Buffer.from(authTagHex, 'hex');
-  const key = deriveKey(salt);
+  // Hex 형식 검증
+  const hexRegex = /^[0-9a-fA-F]+$/;
+  if (!hexRegex.test(saltHex) || !hexRegex.test(ivHex) || !hexRegex.test(authTagHex) || !hexRegex.test(encrypted)) {
+    throw new Error('잘못된 암호화 데이터입니다.');
+  }
 
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
-  decipher.setAuthTag(authTag);
+  try {
+    const salt = Buffer.from(saltHex, 'hex');
+    const iv = Buffer.from(ivHex, 'hex');
+    const authTag = Buffer.from(authTagHex, 'hex');
+    const key = deriveKey(salt);
 
-  let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
+    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+    decipher.setAuthTag(authTag);
 
-  return decrypted;
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+
+    return decrypted;
+  } catch (error) {
+    // 인증 태그 불일치 또는 데이터 손상
+    if (error instanceof Error) {
+      if (error.message.includes('Unsupported state or unable to authenticate data')) {
+        throw new Error('데이터가 손상되었거나 위변조되었습니다.');
+      }
+      if (error.message.includes('Invalid key length')) {
+        throw new Error('암호화 키가 올바르지 않습니다.');
+      }
+    }
+    throw new Error('복호화에 실패했습니다.');
+  }
 }

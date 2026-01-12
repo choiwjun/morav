@@ -4,6 +4,7 @@ import { handleBloggerCallback } from '@/lib/actions/blog';
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get('code');
+  const state = searchParams.get('state');
   const error = searchParams.get('error');
 
   // Handle OAuth error
@@ -19,7 +20,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(errorUrl);
   }
 
-  const result = await handleBloggerCallback(code);
+  // state를 함수에 전달하여 CSRF 검증
+  const result = await handleBloggerCallback(code, state || undefined);
 
   if (!result.success) {
     const errorUrl = new URL('/onboarding/connect-blog', request.url);

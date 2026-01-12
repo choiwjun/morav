@@ -7,6 +7,7 @@ import {
   calculateBackoffDelay,
   isRetryableError,
 } from './types';
+import { convertMarkdownToHtml, sleep } from '@/lib/utils/markdown';
 
 interface WordPressPostResponse {
   id: number;
@@ -361,28 +362,4 @@ function visibilityToWordPress(visibility: 'public' | 'private' | 'draft'): stri
   }
 }
 
-/**
- * 마크다운을 HTML로 간단 변환
- */
-function convertMarkdownToHtml(markdown: string): string {
-  const converted = markdown
-    // 헤더
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-    // 굵은 글씨
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    // 기울임
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    // 링크
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
-    // 줄바꿈
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/\n/g, '<br/>');
-  // 단락으로 감싸기
-  return `<p>${converted}</p>`;
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+// convertMarkdownToHtml, sleep 함수는 @/lib/utils/markdown에서 import

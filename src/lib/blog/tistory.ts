@@ -7,6 +7,7 @@ import {
   calculateBackoffDelay,
   isRetryableError,
 } from './types';
+import { sleep, extractBlogName } from '@/lib/utils/markdown';
 
 const TISTORY_API_URL = 'https://www.tistory.com/apis';
 
@@ -192,14 +193,7 @@ export async function getTistoryCategories(
   }
 }
 
-/**
- * 블로그 URL에서 블로그 이름 추출
- */
-function extractBlogName(blogUrl: string): string {
-  // https://myblog.tistory.com 또는 myblog.tistory.com 형식 처리
-  const match = blogUrl.match(/(?:https?:\/\/)?([^.]+)\.tistory\.com/);
-  return match ? match[1] : blogUrl;
-}
+// extractBlogName, sleep 함수는 @/lib/utils/markdown에서 import
 
 /**
  * visibility를 티스토리 API 형식으로 변환
@@ -215,8 +209,4 @@ function visibilityToTistory(visibility: 'public' | 'private' | 'draft'): string
     default:
       return '3';
   }
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { upgradePlan, PlanType } from '@/lib/subscription';
 import { PLAN_LIMITS } from '@/lib/constants/plans';
+import { sendSubscriptionChangeEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -139,6 +140,14 @@ export async function POST(request: NextRequest) {
       card_number: paymentResult.card?.number,
       receipt_url: paymentResult.receipt?.url,
     });
+
+    // 구독 변경 이메일 발송 (비동기)
+    if (user.email) {
+      const oldPlan = subscriptionResult.previousPlan || 'free';
+      sendSubscriptionChangeEmail(user.id, user.email, oldPlan, planId).catch((err) =>
+        console.error('Failed to send subscription change email:', err)
+      );
+    }
 
     return NextResponse.json({
       success: true,

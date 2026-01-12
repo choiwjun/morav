@@ -134,18 +134,46 @@ export default function PostsPage() {
     loadPosts();
   };
 
-  const handleRetry = async (_postId: string) => {
-    // TODO: 향후 재시도 기능 구현
-    toast.info('재시도 기능은 곧 제공될 예정입니다.');
+  const handleRetry = async (postId: string) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}/retry`, {
+        method: 'POST',
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('포스트가 성공적으로 발행되었습니다.');
+        loadPosts(); // 목록 새로고침
+      } else {
+        toast.error(data.error || '재시도에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Retry error:', error);
+      toast.error('재시도 중 오류가 발생했습니다.');
+    }
   };
 
-  const handleDelete = async (_postId: string) => {
+  const handleDelete = async (postId: string) => {
     if (!confirm('정말 이 포스트를 삭제하시겠습니까?')) {
       return;
     }
 
-    // TODO: 향후 삭제 기능 구현
-    toast.info('삭제 기능은 곧 제공될 예정입니다.');
+    try {
+      const response = await fetch(`/api/posts/${postId}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('포스트가 삭제되었습니다.');
+        loadPosts(); // 목록 새로고침
+      } else {
+        toast.error(data.error || '삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error('삭제 중 오류가 발생했습니다.');
+    }
   };
 
   return (

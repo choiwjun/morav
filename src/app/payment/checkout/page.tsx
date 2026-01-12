@@ -63,6 +63,10 @@ function CheckoutContent() {
     return null;
   }
 
+  // planName을 handlePayment보다 먼저 정의
+  const planName = PLAN_NAMES[planId] || planId;
+  const description = `${blogCount}개 블로그 · 월 ${planInfo.posts}`;
+
   const handlePayment = async () => {
     if (!agreedToTerms) {
       toast.error('약관에 동의해주세요.');
@@ -83,8 +87,8 @@ function CheckoutContent() {
     setLoading(true);
 
     try {
-      // 주문 ID 생성 (실제로는 BE에서 생성해야 함)
-      const orderId = `order_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      // 주문 ID 생성 (format: morav_{planId}_{timestamp}_{userId})
+      const orderId = `morav_${planId}_${Date.now()}_${customerKey}`;
 
       // 성공/실패 URL 생성
       const successUrl = `${window.location.origin}/payment/success?plan=${planId}&blogs=${blogCount}&orderId=${orderId}`;
@@ -120,9 +124,6 @@ function CheckoutContent() {
     console.error('Widget error:', error);
     toast.error('결제 위젯을 불러올 수 없습니다.');
   };
-
-  const planName = PLAN_NAMES[planId] || planId;
-  const description = `${blogCount}개 블로그 · 월 ${planInfo.posts}`;
 
   return (
     <div className="max-w-2xl mx-auto py-12">

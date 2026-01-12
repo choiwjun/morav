@@ -24,6 +24,7 @@ export interface Subscription {
 export interface CreateSubscriptionResult {
   success: boolean;
   subscription?: Subscription;
+  previousPlan?: string;
   error?: string;
 }
 
@@ -386,6 +387,7 @@ export async function upgradePlan(
 
       return {
         success: true,
+        previousPlan: 'free',
         subscription: {
           id: data.id,
           userId: data.user_id,
@@ -404,6 +406,9 @@ export async function upgradePlan(
     if (queryError) {
       return { success: false, error: '구독 조회에 실패했습니다.' };
     }
+
+    // 이전 플랜 저장
+    const previousPlan = subscription.plan;
 
     // 플랜 업그레이드
     const { data, error: updateError } = await supabase
@@ -424,6 +429,7 @@ export async function upgradePlan(
 
     return {
       success: true,
+      previousPlan,
       subscription: {
         id: data.id,
         userId: data.user_id,
