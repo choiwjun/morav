@@ -24,20 +24,40 @@ function isValidRedirectPath(path: string): boolean {
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
+  const error = searchParams.get('error');
+  const errorDescription = searchParams.get('error_description');
   const next = searchParams.get('next') ?? '/dashboard';
+
+  // OAuth 에러가 있는 경우
+  if (error) {
+    console.error('OAuth error:', error, errorDescription);
+    return NextResponse.redirect(
+      `${origin}/auth/login?error=${encodeURIComponent(error)}&message=${encodeURIComponent(errorDescription || '')}`
+    );
+  }
 
   // Open Redirect 방지: 허용된 경로만 리다이렉트
   const safeRedirectPath = isValidRedirectPath(next) ? next : '/dashboard';
 
   if (code) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (!error) {
+    if (exchangeError) {
+      console.error('Exchange code error:', exchangeError.message);
+      return NextResponse.redirect(
+        `${origin}/auth/login?error=exchange_error&message=${encodeURIComponent(exchangeError.message)}`
+      );
+    }
+
+    if (data.session) {
+      // 세션이 성공적으로 생성됨
+      console.log('OAuth session created for user:', data.session.user.email);
       return NextResponse.redirect(`${origin}${safeRedirectPath}`);
     }
   }
 
-  // 에러 발생 시 로그인 페이지로 리다이렉트
-  return NextResponse.redirect(`${origin}/auth/login?error=oauth_error`);
+  // code가 없는 경우
+  console.error('No code provided in OAuth callback');
+  return NextResponse.redirect(`${origin}/auth/login?error=no_code`);
 }

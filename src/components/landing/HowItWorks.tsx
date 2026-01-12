@@ -1,97 +1,53 @@
 'use client';
 
-import { Search, Wand2, Send, BarChart3 } from 'lucide-react';
-
-const steps = [
-  {
-    step: 1,
-    title: '블로그 연결',
-    description: '티스토리, 블로거, 워드프레스 등 사용 중인 블로그를 간단하게 연결하세요.',
-    icon: Search,
-    color: 'bg-blue-500',
-  },
-  {
-    step: 2,
-    title: 'AI API 등록',
-    description: 'OpenAI, Claude, Gemini 등 원하는 AI 서비스의 API 키를 등록하세요.',
-    icon: Wand2,
-    color: 'bg-purple-500',
-  },
-  {
-    step: 3,
-    title: '카테고리 선택',
-    description: '관심 있는 카테고리를 선택하면, 관련 트렌드 키워드를 자동으로 수집합니다.',
-    icon: BarChart3,
-    color: 'bg-orange-500',
-  },
-  {
-    step: 4,
-    title: '자동 발행',
-    description: '설정한 시간에 맞춰 AI가 작성한 콘텐츠가 자동으로 블로그에 발행됩니다.',
-    icon: Send,
-    color: 'bg-green-500',
-  },
-];
-
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-20 bg-gray-50">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        {/* Section header */}
-        <div className="mx-auto max-w-2xl text-center mb-16">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            어떻게 작동하나요?
+    <section className="section-padding" id="how-it-works">
+      <div className="max-w-[1040px] mx-auto px-6">
+        <div className="text-center mb-12 lg:mb-20">
+          <h2 className="text-[28px] sm:text-[32px] lg:text-[40px] font-bold tracking-tight text-toss-gray-800">
+            3단계면 끝납니다
           </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            단 4단계로 블로그 자동화를 시작하세요
-          </p>
         </div>
-
-        {/* Steps */}
-        <div className="relative">
-          {/* Connection line */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-200 hidden lg:block" />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {steps.map((item, index) => (
-              <div
-                key={item.step}
-                className={`relative ${index % 2 === 1 ? 'lg:mt-24' : ''}`}
-              >
-                <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                  {/* Step number */}
-                  <div
-                    className={`absolute -top-4 ${
-                      index % 2 === 0 ? 'lg:right-0 lg:translate-x-1/2' : 'lg:left-0 lg:-translate-x-1/2'
-                    } left-8 lg:left-auto`}
-                  >
-                    <div
-                      className={`w-8 h-8 rounded-full ${item.color} text-white flex items-center justify-center text-sm font-bold`}
-                    >
-                      {item.step}
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className={`p-3 ${item.color} bg-opacity-10 rounded-lg`}>
-                      <item.icon className={`${item.color.replace('bg-', 'text-')}`} size={24} />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">{item.title}</h3>
-                      <p className="text-gray-600">{item.description}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-16">
+          <div className="flex flex-col gap-4 sm:gap-6">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-toss-gray-50 flex items-center justify-center text-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 sm:w-8 sm:h-8">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+              </svg>
+            </div>
+            <div className="flex flex-col gap-2">
+              <h3 className="text-xl sm:text-2xl font-bold text-toss-gray-800">블로그 연동</h3>
+              <p className="text-sm sm:text-base text-toss-gray-600 leading-relaxed font-medium">
+                네이버, 티스토리 등 운영 중인 계정을 안전하게 연결하세요.
+              </p>
+            </div>
           </div>
-        </div>
-
-        {/* Result message */}
-        <div className="mt-16 text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-6 py-3 rounded-full text-lg font-medium">
-            <Wand2 size={20} />
-            설정 완료 후, 모든 것이 자동으로 진행됩니다!
+          <div className="flex flex-col gap-4 sm:gap-6">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-toss-gray-50 flex items-center justify-center text-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 sm:w-8 sm:h-8">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423z" />
+              </svg>
+            </div>
+            <div className="flex flex-col gap-2">
+              <h3 className="text-xl sm:text-2xl font-bold text-toss-gray-800">AI 콘텐츠 생성</h3>
+              <p className="text-sm sm:text-base text-toss-gray-600 leading-relaxed font-medium">
+                핵심 키워드만 입력하면 AI가 전문적인 초안을 생성합니다.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-4 sm:gap-6">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-toss-gray-50 flex items-center justify-center text-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 sm:w-8 sm:h-8">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+              </svg>
+            </div>
+            <div className="flex flex-col gap-2">
+              <h3 className="text-xl sm:text-2xl font-bold text-toss-gray-800">스마트 예약 발행</h3>
+              <p className="text-sm sm:text-base text-toss-gray-600 leading-relaxed font-medium">
+                원하는 시간에 맞춰 스케줄에 따라 자동으로 업로드됩니다.
+              </p>
+            </div>
           </div>
         </div>
       </div>

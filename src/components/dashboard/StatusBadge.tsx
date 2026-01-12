@@ -1,7 +1,6 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Clock, XCircle, Loader } from 'lucide-react';
+import { CheckCircle, Clock, XCircle, RefreshCw, Calendar } from 'lucide-react';
 
 export type PostStatus =
   | 'pending'
@@ -19,58 +18,65 @@ interface StatusBadgeProps {
 export function StatusBadge({ status }: StatusBadgeProps) {
   const variants: Record<
     PostStatus,
-    { label: string; className: string; icon: React.ReactNode }
+    { label: string; bgClass: string; textClass: string; icon: React.ReactNode }
   > = {
     published: {
-      label: '발행 완료',
-      className: 'bg-green-50 text-green-700 border-green-200',
-      icon: <CheckCircle size={14} />,
+      label: '성공',
+      bgClass: 'bg-[#e7f6ed]',
+      textClass: 'text-[#07883d]',
+      icon: <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
     },
     scheduled: {
-      label: '예약 대기',
-      className: 'bg-orange-50 text-orange-700 border-orange-200',
-      icon: <Clock size={14} />,
+      label: '예약됨',
+      bgClass: 'bg-amber-100',
+      textClass: 'text-amber-700',
+      icon: <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
     },
     pending: {
       label: '대기 중',
-      className: 'bg-gray-50 text-gray-700 border-gray-200',
-      icon: <Clock size={14} />,
+      bgClass: 'bg-gray-100',
+      textClass: 'text-gray-600',
+      icon: <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
     },
     generating: {
-      label: '생성 중',
-      className: 'bg-blue-50 text-blue-700 border-blue-200',
-      icon: <Loader size={14} className="animate-spin" />,
+      label: '분석 중',
+      bgClass: 'bg-primary/10',
+      textClass: 'text-primary',
+      icon: <RefreshCw className="w-3 h-3 sm:w-3.5 sm:h-3.5 animate-spin" />,
     },
     generated: {
       label: '생성 완료',
-      className: 'bg-purple-50 text-purple-700 border-purple-200',
-      icon: <CheckCircle size={14} />,
+      bgClass: 'bg-purple-100',
+      textClass: 'text-purple-700',
+      icon: <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
     },
     publishing: {
       label: '발행 중',
-      className: 'bg-blue-50 text-blue-700 border-blue-200',
-      icon: <Loader size={14} className="animate-spin" />,
+      bgClass: 'bg-primary/10',
+      textClass: 'text-primary',
+      icon: <RefreshCw className="w-3 h-3 sm:w-3.5 sm:h-3.5 animate-spin" />,
     },
     failed: {
-      label: '발행 실패',
-      className: 'bg-red-50 text-red-700 border-red-200',
-      icon: <XCircle size={14} />,
+      label: '실패',
+      bgClass: 'bg-red-100',
+      textClass: 'text-red-600',
+      icon: <XCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
     },
   };
 
   const variant = variants[status as PostStatus] || {
     label: status,
-    className: 'bg-gray-50 text-gray-700 border-gray-200',
+    bgClass: 'bg-gray-100',
+    textClass: 'text-gray-600',
     icon: null,
   };
 
   return (
-    <Badge
-      variant="outline"
-      className={`flex items-center gap-1.5 ${variant.className}`}
+    <span
+      className={`px-2 sm:px-3 py-0.5 sm:py-1 ${variant.bgClass} ${variant.textClass} text-[10px] sm:text-xs font-bold rounded-full flex items-center gap-0.5 sm:gap-1 whitespace-nowrap`}
     >
       {variant.icon}
       {variant.label}
-    </Badge>
+    </span>
   );
 }

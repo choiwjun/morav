@@ -1,4 +1,5 @@
 import {
+  Header,
   Hero,
   ProblemSolution,
   HowItWorks,
@@ -13,15 +14,18 @@ import {
 export default function Home() {
   return (
     <main className="min-h-screen">
-      <Hero />
-      <ProblemSolution />
-      <HowItWorks />
-      <Features />
-      <Pricing />
-      <Testimonials />
-      <FAQ />
-      <FinalCTA />
-      <Footer />
+      <Header />
+      <div className="pt-16">
+        <Hero />
+        <ProblemSolution />
+        <HowItWorks />
+        <Features />
+        <Pricing />
+        <Testimonials />
+        <FAQ />
+        <FinalCTA />
+        <Footer />
+      </div>
     </main>
   );
 }

@@ -8,14 +8,19 @@ interface TodayStats {
   publishedPosts: number;
   failedPosts: number;
   pendingPosts: number;
+  connectedBlogs: number;
+  totalBlogs: number;
 }
 
 interface RecentPost {
   id: string;
   title: string;
+  content: string;
   status: string;
   blogName: string;
   blogPlatform: string;
+  keyword: string | null;
+  publishedUrl: string | null;
   publishedAt: string | null;
   createdAt: string;
 }
@@ -73,6 +78,20 @@ export async function getTodayStats(): Promise<DashboardResult> {
       return { success: false, error: '통계 조회에 실패했습니다.' };
     }
 
+    // 블로그 수 조회
+    const { data: blogs, error: blogsError } = await supabase
+      .from('blogs')
+      .select('id, is_active')
+      .eq('user_id', user.id);
+
+    if (blogsError) {
+      console.error('Get blogs count error:', blogsError);
+    }
+
+    const allBlogs = blogs || [];
+    const connectedBlogs = allBlogs.filter((b) => b.is_active).length;
+    const totalBlogs = allBlogs.length;
+
     const allPosts = posts || [];
     const stats: TodayStats = {
       totalPosts: allPosts.length,
@@ -81,6 +100,8 @@ export async function getTodayStats(): Promise<DashboardResult> {
       pendingPosts: allPosts.filter((p) =>
         ['pending', 'generating', 'generated', 'publishing'].includes(p.status)
       ).length,
+      connectedBlogs,
+      totalBlogs,
     };
 
     return { success: true, stats };
@@ -107,19 +128,24 @@ export async function getRecentPosts(limit: number = 5): Promise<DashboardResult
     // limit 검증 (최대 20개)
     const safeLimit = Math.min(Math.max(1, limit), 20);
 
-    // 최근 포스트 조회 (블로그 정보 포함)
+    // 최근 포스트 조회 (블로그 및 키워드 정보 포함)
     const { data: posts, error: postsError } = await supabase
       .from('posts')
       .select(
         `
         id,
         title,
+        content,
         status,
+        published_url,
         published_at,
         created_at,
         blogs!inner (
           blog_name,
           platform
+        ),
+        keywords (
+          keyword
         )
       `
       )
@@ -135,9 +161,12 @@ export async function getRecentPosts(limit: number = 5): Promise<DashboardResult
     const recentPosts: RecentPost[] = (posts || []).map((post) => ({
       id: post.id,
       title: post.title,
+      content: post.content?.substring(0, 150) || '',
       status: post.status,
       blogName: (post.blogs as { blog_name: string; platform: string }).blog_name,
       blogPlatform: (post.blogs as { blog_name: string; platform: string }).platform,
+      keyword: (post.keywords as { keyword: string } | null)?.keyword || null,
+      publishedUrl: post.published_url,
       publishedAt: post.published_at,
       createdAt: post.created_at,
     }));

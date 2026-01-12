@@ -1,19 +1,35 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { GoogleOAuthButton } from '@/components/common/GoogleOAuthButton';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // URL에서 OAuth 에러 확인
+  useEffect(() => {
+    const urlError = searchParams.get('error');
+    const urlMessage = searchParams.get('message');
+    if (urlError) {
+      const errorMessages: Record<string, string> = {
+        oauth_error: 'OAuth 인증에 실패했습니다.',
+        exchange_error: '인증 코드 교환에 실패했습니다.',
+        no_code: '인증 코드가 없습니다.',
+        access_denied: '접근이 거부되었습니다.',
+      };
+      setError(urlMessage || errorMessages[urlError] || `인증 오류: ${urlError}`);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,5 +154,33 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+function LoginFormFallback() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="max-w-md w-full">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">모라브</h1>
+          <p className="text-gray-600 mt-2">다시 오신 것을 환영합니다</p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-10 bg-gray-200 rounded"></div>
+            <div className="h-10 bg-gray-200 rounded"></div>
+            <div className="h-12 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginFormFallback />}>
+      <LoginForm />
+    </Suspense>
   );
 }

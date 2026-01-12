@@ -121,5 +121,34 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Pretendard', sans-serif;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.02em;
   }
+  h1, h2, h3, h4 {
+    color: #191F28;
+    font-weight: 700;
+  }
+}
+
+/* Design.html 스타일 추가 */
+@theme inline {
+  --color-primary: #0051FF;
+  --color-toss-gray-50: #F2F4F6;
+  --color-toss-gray-100: #E5E8EB;
+  --color-toss-gray-200: #D1D6DB;
+  --color-toss-gray-600: #4E5968;
+  --color-toss-gray-700: #333D4B;
+  --color-toss-gray-800: #191F28;
+  --radius-toss-sm: 8px;
+  --radius-toss-md: 14px;
+  --radius-toss-lg: 24px;
+  --radius-toss-xl: 32px;
+  --shadow-toss-card: 0 2px 14px 0 rgba(0, 0, 0, 0.04);
+  --shadow-toss-button: 0 4px 12px 0 rgba(0, 81, 255, 0.12);
+}
+
+.section-padding {
+  @apply py-24 lg:py-32;
 }

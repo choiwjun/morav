@@ -2,78 +2,51 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles, Zap, Clock } from 'lucide-react';
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-blue-50 to-white py-20 sm:py-32">
-      {/* Background decoration */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-0 -translate-x-1/2 blur-3xl opacity-30">
-          <div className="aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-blue-500 to-purple-500" />
+    <section className="section-padding overflow-hidden">
+      <div className="max-w-[1040px] mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="flex flex-col gap-8 lg:gap-10">
+          <div className="flex flex-col gap-4">
+            <h1 className="text-[36px] sm:text-[44px] lg:text-[56px] font-bold leading-[1.3] tracking-tighter text-toss-gray-800">
+              블로그 관리는 이제 <br />
+              <span className="text-primary">모라브</span>에게 맡기세요
+            </h1>
+            <p className="text-lg lg:text-xl text-toss-gray-600 leading-relaxed font-medium">
+              소재 고갈 걱정 없는 고품질 포스팅 관리.<br />
+              네이버, 티스토리, 워드프레스 통합 솔루션.
+            </p>
+          </div>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                asChild
+                className="bg-primary text-white px-6 sm:px-8 py-4 rounded-toss-md font-bold text-base lg:text-lg hover:brightness-110 transition-all shadow-toss-button w-full sm:w-auto"
+              >
+                <Link href="/auth/signup">무료로 시작하기</Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="bg-toss-gray-50 text-toss-gray-700 px-6 sm:px-8 py-4 rounded-toss-md font-bold text-base lg:text-lg hover:bg-toss-gray-100 transition-all border-transparent w-full sm:w-auto"
+              >
+                <Link href="#how-it-works">서비스 안내</Link>
+              </Button>
+            </div>
+            <p className="text-sm text-toss-gray-600 font-medium">
+              <span className="text-primary">&#10003;</span> 5건 무료 발행 제공 &nbsp;&nbsp;
+              <span className="text-primary">&#10003;</span> 신용카드 불필요
+            </p>
+          </div>
         </div>
-      </div>
-
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          {/* Badge */}
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700">
-            <Sparkles size={16} />
-            AI 기반 블로그 자동화 플랫폼
-          </div>
-
-          {/* Main heading */}
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-            블로그 운영,
-            <br />
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              AI가 대신합니다
-            </span>
-          </h1>
-
-          {/* Subheading */}
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            트렌드 키워드 분석부터 콘텐츠 생성, 자동 발행까지.
-            <br />
-            모라브와 함께라면 하루 5분이면 충분합니다.
-          </p>
-
-          {/* CTA buttons */}
-          <div className="mt-10 flex items-center justify-center gap-4">
-            <Button asChild size="lg" className="gap-2">
-              <Link href="/auth/signup">
-                무료로 시작하기
-                <ArrowRight size={18} />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link href="#how-it-works">어떻게 작동하나요?</Link>
-            </Button>
-          </div>
-
-          {/* Stats */}
-          <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-3">
-            <div className="flex flex-col items-center">
-              <div className="flex items-center gap-2 text-blue-600">
-                <Zap size={24} />
-                <span className="text-3xl font-bold">10분</span>
-              </div>
-              <p className="mt-2 text-sm text-gray-500">평균 콘텐츠 생성 시간</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="flex items-center gap-2 text-blue-600">
-                <Clock size={24} />
-                <span className="text-3xl font-bold">24/7</span>
-              </div>
-              <p className="mt-2 text-sm text-gray-500">자동 발행 시스템</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="flex items-center gap-2 text-blue-600">
-                <Sparkles size={24} />
-                <span className="text-3xl font-bold">1,500+</span>
-              </div>
-              <p className="mt-2 text-sm text-gray-500">자 이상 고품질 콘텐츠</p>
-            </div>
+        <div className="relative">
+          <div className="relative bg-toss-gray-50 rounded-toss-xl p-3 sm:p-4 overflow-hidden shadow-toss-card border border-toss-gray-100">
+            <img
+              alt="대시보드 미리보기"
+              className="rounded-toss-lg shadow-sm w-full"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_uooip_oGJgoreO9HbJWLJMqyoM1dHFYJv4MwEuVVUIIX1r0pbpcBCqvdVJmdkj_p5reJbEMGlGJ3iUrqtcZl6iwVH4MskyR12x0gzkwP6viINT9EUPjlVcxKVZRnHOTFrOukOo1DHtK5Stq2iNRLcQWmyU1qcG91ryQIP2NK9IaWkp0bnJXQlkZyxkF7Kst1SmERQ-6eQGXcH8nnNnygATH3IH2E3fKttmp2qkn-237hzZxSwg0R97f3T7XMfYJAYzmw0FZnngw"
+            />
           </div>
         </div>
       </div>
