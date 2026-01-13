@@ -14,11 +14,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { blogName, blogId, apiKey } = body;
+    const { blogName, blogUrl, blogId, apiKey } = body;
 
-    if (!blogName || !blogId || !apiKey) {
+    if (!blogName || !blogUrl || !blogId || !apiKey) {
       return NextResponse.json(
-        { error: '블로그 이름, Blog ID, API Key를 모두 입력해주세요.' },
+        { error: '블로그 이름, URL, Blog ID, API Key를 모두 입력해주세요.' },
         { status: 400 }
       );
     }
@@ -26,8 +26,8 @@ export async function POST(request: NextRequest) {
     // API Key 암호화
     const encryptedApiKey = encrypt(apiKey);
 
-    // Blog ID를 URL로 변환
-    const blogUrl = `https://www.blogger.com/blog/posts/${blogId}`;
+    // URL 정규화 (https:// 없으면 추가하지 않고 저장)
+    const normalizedUrl = blogUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
     // 블로그 저장 (upsert) - blog_id를 별도 필드에 저장
     const { data: savedBlog, error: upsertError } = await supabase
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
           user_id: user.id,
           platform: 'blogger',
           blog_name: blogName.slice(0, 100),
-          blog_url: blogUrl.slice(0, 255),
+          blog_url: normalizedUrl.slice(0, 255),
           access_token: encryptedApiKey, // API Key를 access_token 필드에 저장
           external_blog_id: blogId, // Blog ID 저장
           is_active: true,

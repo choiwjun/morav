@@ -68,7 +68,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     const body = await request.json();
-    const { name, categories, is_active, external_blog_id, access_token } = body;
+    const { name, categories, is_active, external_blog_id, access_token, blog_url } = body;
 
     // 블로그 소유권 확인
     const { data: existingBlog, error: findError } = await supabase
@@ -107,6 +107,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     // Access Token / API Key 업데이트 (암호화)
     if (typeof access_token === 'string' && access_token.trim()) {
       updateData.access_token = encrypt(access_token.trim());
+    }
+
+    // Blog URL 업데이트
+    if (typeof blog_url === 'string' && blog_url.trim()) {
+      updateData.blog_url = blog_url.trim();
     }
 
     const { data: updatedBlog, error: updateError } = await supabase

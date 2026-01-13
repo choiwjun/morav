@@ -67,6 +67,7 @@ export default function BlogsPage() {
     is_active: true,
     external_blog_id: '',
     access_token: '',
+    blog_url: '',
   });
   const [editLoading, setEditLoading] = useState(false);
 
@@ -126,6 +127,7 @@ export default function BlogsPage() {
       is_active: blog.is_active,
       external_blog_id: blog.external_blog_id || '',
       access_token: '', // 보안상 기존 값 표시하지 않음
+      blog_url: blog.url || '',
     });
     setEditModalOpen(true);
   };
@@ -150,6 +152,11 @@ export default function BlogsPage() {
       // API Key/Token이 입력된 경우만 포함
       if (editFormData.access_token.trim()) {
         updateData.access_token = editFormData.access_token.trim();
+      }
+
+      // Blog URL이 변경된 경우 포함
+      if (editFormData.blog_url.trim() && editFormData.blog_url.trim() !== editingBlog.url) {
+        updateData.blog_url = editFormData.blog_url.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
       }
 
       const response = await fetch(`/api/user/blogs/${editingBlog.id}`, {
@@ -420,14 +427,20 @@ export default function BlogsPage() {
             </div>
 
             <div className="p-6 space-y-6">
-              {/* 블로그 URL (읽기 전용) */}
+              {/* 블로그 URL */}
               <div>
                 <label className="block text-sm font-medium text-[#0c111d] mb-2">
                   블로그 URL
                 </label>
-                <div className="px-4 py-2 bg-[#f9fafa] border border-[#cdd6ea] rounded-lg text-[#4562a1]">
-                  {editingBlog.url}
-                </div>
+                <Input
+                  value={editFormData.blog_url}
+                  onChange={(e) => setEditFormData({ ...editFormData, blog_url: e.target.value })}
+                  placeholder={editingBlog.platform === 'blogger' ? 'yourblog.blogspot.com' : 'myblog.tistory.com'}
+                  className="border-[#cdd6ea] focus:border-[#4562a1] focus:ring-[#4562a1]"
+                />
+                <p className="mt-1 text-xs text-[#4562a1]">
+                  실제 블로그 주소 (https:// 제외)
+                </p>
               </div>
 
               {/* 블로그 이름 */}

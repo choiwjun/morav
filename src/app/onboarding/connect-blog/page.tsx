@@ -126,6 +126,7 @@ export default function ConnectBlogPage() {
 
     const form = e.target as HTMLFormElement;
     const blogName = form.blogName.value;
+    const blogUrl = form.blogUrl.value;
     const blogId = form.blogId.value;
     const apiKey = form.apiKey.value;
 
@@ -133,7 +134,7 @@ export default function ConnectBlogPage() {
       const response = await fetch('/api/blog/blogger/connect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ blogName, blogId, apiKey }),
+        body: JSON.stringify({ blogName, blogUrl, blogId, apiKey }),
       });
 
       const data = await response.json();
@@ -149,7 +150,7 @@ export default function ConnectBlogPage() {
           id: data.blog?.id || Date.now().toString(),
           platform: 'blogger',
           blogName: data.blog?.blog_name || blogName,
-          blogUrl: data.blog?.blog_url || `https://www.blogger.com/blog/${blogId}`,
+          blogUrl: data.blog?.blog_url || blogUrl,
           connectedAt: new Date().toISOString(),
         },
       ]);
@@ -369,12 +370,22 @@ export default function ConnectBlogPage() {
                   </div>
 
                   <div>
+                    <label htmlFor="blogUrl" className="block text-sm font-medium mb-2">
+                      블로그 URL
+                    </label>
+                    <Input id="blogUrl" name="blogUrl" placeholder="yourblog.blogspot.com" required />
+                    <p className="text-xs text-gray-500 mt-1">
+                      실제 블로그 주소 (예: yourblog.blogspot.com)
+                    </p>
+                  </div>
+
+                  <div>
                     <label htmlFor="blogId" className="block text-sm font-medium mb-2">
                       Blog ID
                     </label>
                     <Input id="blogId" name="blogId" placeholder="1234567890123456789" required />
                     <p className="text-xs text-gray-500 mt-1">
-                      블로그 URL에서 확인: blogger.com/blog/posts/[Blog ID]
+                      Blogger 대시보드 URL에서 확인: blogger.com/blog/posts/<strong>숫자ID</strong>
                     </p>
                   </div>
 
