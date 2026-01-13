@@ -4,7 +4,7 @@ import { TrendKeyword, KeywordCollectionResult } from './types';
 import { classifyKeyword } from './classifier';
 
 const NAVER_DATALAB_URL = 'https://datalab.naver.com/keyword/realtimeList.naver';
-const NAVER_SHOPPING_TREND_URL = 'https://openapi.naver.com/v1/datalab/shopping/categories';
+const NAVER_SEARCH_TREND_URL = 'https://openapi.naver.com/v1/datalab/search';
 const REQUEST_TIMEOUT = 10000; // 10초
 
 interface NaverRealtimeKeyword {
@@ -13,13 +13,13 @@ interface NaverRealtimeKeyword {
   linkUrl?: string;
 }
 
-interface NaverShoppingTrendResponse {
+interface NaverSearchTrendResponse {
   startDate: string;
   endDate: string;
   timeUnit: string;
   results: Array<{
     title: string;
-    category: string[];
+    keywords: string[];
     data: Array<{ period: string; ratio: number }>;
   }>;
 }
@@ -121,7 +121,7 @@ async function collectNaverTrendsAlternative(): Promise<KeywordCollectionResult>
 
   if (clientId && clientSecret) {
     try {
-      const keywords = await collectFromNaverShoppingAPI(clientId, clientSecret);
+      const keywords = await collectFromNaverSearchAPI(clientId, clientSecret);
       if (keywords.length > 0) {
         return {
           success: true,
@@ -146,9 +146,9 @@ async function collectNaverTrendsAlternative(): Promise<KeywordCollectionResult>
 }
 
 /**
- * 네이버 쇼핑 트렌드 API를 통한 키워드 수집
+ * 네이버 검색어트렌드 API를 통한 키워드 수집
  */
-async function collectFromNaverShoppingAPI(
+async function collectFromNaverSearchAPI(
   clientId: string,
   clientSecret: string
 ): Promise<TrendKeyword[]> {
@@ -157,19 +157,19 @@ async function collectFromNaverShoppingAPI(
 
   const formatDate = (date: Date) => date.toISOString().split('T')[0];
 
-  // 주요 쇼핑 카테고리별 트렌드 조회
-  const categories = [
-    { name: '패션의류', code: '50000000' },
-    { name: '디지털/가전', code: '50000001' },
-    { name: '생활/건강', code: '50000002' },
-    { name: '식품', code: '50000003' },
+  // 인기 검색 키워드 그룹 (다양한 카테고리)
+  const keywordGroups = [
+    { groupName: 'IT/기술', keywords: ['AI', '챗GPT', '아이폰', '갤럭시', '테슬라'] },
+    { groupName: '경제/금융', keywords: ['주식', '부동산', '비트코인', '금리', '환율'] },
+    { groupName: '생활/건강', keywords: ['다이어트', '운동', '건강', '맛집', '여행'] },
+    { groupName: '엔터테인먼트', keywords: ['넷플릭스', '유튜브', '드라마', '영화', 'K-pop'] },
   ];
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
   try {
-    const response = await fetch(NAVER_SHOPPING_TREND_URL, {
+    const response = await fetch(NAVER_SEARCH_TREND_URL, {
       method: 'POST',
       headers: {
         'X-Naver-Client-Id': clientId,
@@ -180,7 +180,7 @@ async function collectFromNaverShoppingAPI(
         startDate: formatDate(startDate),
         endDate: formatDate(endDate),
         timeUnit: 'date',
-        category: categories.map((c) => ({ name: c.name, param: [c.code] })),
+        keywordGroups: keywordGroups,
       }),
       signal: controller.signal,
     });
@@ -188,13 +188,15 @@ async function collectFromNaverShoppingAPI(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Naver API response:', response.status, errorText);
       throw new Error(`Naver API error: ${response.status}`);
     }
 
-    const data: NaverShoppingTrendResponse = await response.json();
+    const data: NaverSearchTrendResponse = await response.json();
     const keywords: TrendKeyword[] = [];
 
-    data.results.forEach((result, index) => {
+    data.results.forEach((result: NaverSearchTrendResponse['results'][0], index: number) => {
       const latestRatio = result.data[result.data.length - 1]?.ratio || 0;
       const classification = classifyKeyword(result.title);
       keywords.push({
