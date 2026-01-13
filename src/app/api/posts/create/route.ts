@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
         .eq('user_id', user.id)
         .gte('created_at', startOfMonth)
         .lte('created_at', endOfMonth)
-        .neq('status', 'draft');
+        .not('status', 'eq', 'pending');
 
       if (count !== null && subscription.monthly_limit && count >= subscription.monthly_limit) {
         return NextResponse.json(
@@ -121,23 +121,8 @@ export async function POST(request: NextRequest) {
 
       if (existingKeyword) {
         keywordId = existingKeyword.id;
-      } else {
-        // 새 키워드 생성
-        const { data: newKeyword, error: keywordError } = await supabase
-          .from('keywords')
-          .insert({
-            user_id: user.id,
-            blog_id: blogId,
-            keyword: keyword.trim(),
-            status: 'completed',
-          })
-          .select('id')
-          .single();
-
-        if (!keywordError && newKeyword) {
-          keywordId = newKeyword.id;
-        }
       }
+      // 키워드가 없으면 keywordId는 null로 유지 (키워드 테이블은 트렌드 수집용)
     }
 
     // 포스트 생성

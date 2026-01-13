@@ -90,18 +90,20 @@ export async function GET() {
     }
 
     // DB에서 가져온 설정을 기본값과 병합 (새 필드 지원)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dbSettings = settings as Record<string, any>;
     const mergedSettings: NotificationSettings = {
       ...DEFAULT_SETTINGS,
-      email_on_publish_success: settings.email_on_publish_success ?? DEFAULT_SETTINGS.email_on_publish_success,
-      email_on_publish_fail: settings.email_on_publish_fail ?? DEFAULT_SETTINGS.email_on_publish_fail,
-      email_on_subscription_change: settings.email_on_subscription_change ?? DEFAULT_SETTINGS.email_on_subscription_change,
-      email_on_usage_limit: settings.email_on_usage_limit ?? DEFAULT_SETTINGS.email_on_usage_limit,
-      email_weekly_report: settings.email_weekly_report ?? DEFAULT_SETTINGS.email_weekly_report,
-      email_marketing: settings.email_marketing ?? DEFAULT_SETTINGS.email_marketing,
-      email_product_updates: settings.email_product_updates ?? DEFAULT_SETTINGS.email_product_updates,
-      push_enabled: settings.push_enabled ?? DEFAULT_SETTINGS.push_enabled,
-      push_on_publish: settings.push_on_publish ?? DEFAULT_SETTINGS.push_on_publish,
-      push_on_important: settings.push_on_important ?? DEFAULT_SETTINGS.push_on_important,
+      email_on_publish_success: dbSettings.email_on_publish_success ?? DEFAULT_SETTINGS.email_on_publish_success,
+      email_on_publish_fail: dbSettings.email_on_publish_fail ?? DEFAULT_SETTINGS.email_on_publish_fail,
+      email_on_subscription_change: dbSettings.email_on_subscription_change ?? DEFAULT_SETTINGS.email_on_subscription_change,
+      email_on_usage_limit: dbSettings.email_on_usage_limit ?? DEFAULT_SETTINGS.email_on_usage_limit,
+      email_weekly_report: dbSettings.email_weekly_report ?? DEFAULT_SETTINGS.email_weekly_report,
+      email_marketing: dbSettings.email_marketing ?? DEFAULT_SETTINGS.email_marketing,
+      email_product_updates: dbSettings.email_product_updates ?? DEFAULT_SETTINGS.email_product_updates,
+      push_enabled: dbSettings.push_enabled ?? DEFAULT_SETTINGS.push_enabled,
+      push_on_publish: dbSettings.push_on_publish ?? DEFAULT_SETTINGS.push_on_publish,
+      push_on_important: dbSettings.push_on_important ?? DEFAULT_SETTINGS.push_on_important,
     };
 
     return NextResponse.json({

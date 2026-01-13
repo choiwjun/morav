@@ -19,6 +19,7 @@ import {
   Key,
   CreditCard as CreditCardIcon,
   Bell,
+  Sparkles,
 } from 'lucide-react';
 import { logout } from '@/lib/actions/auth';
 import { createClient } from '@/lib/supabase/client';
@@ -306,6 +307,14 @@ export default function SettingsLayout({
           onClick={onNavClick}
         >
           알림 설정
+        </SettingsNavItem>
+        <SettingsNavItem
+          icon={<Sparkles size={20} />}
+          href="/settings/auto-generate"
+          active={pathname === '/settings/auto-generate'}
+          onClick={onNavClick}
+        >
+          자동 생성
         </SettingsNavItem>
       </div>
     </div>

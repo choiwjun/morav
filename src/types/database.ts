@@ -424,6 +424,55 @@ export interface Database {
           }
         ];
       };
+      auto_generate_settings: {
+        Row: {
+          id: string;
+          user_id: string;
+          is_enabled: boolean;
+          preferred_provider: 'openai' | 'claude' | 'gemini' | 'grok';
+          preferred_categories: string[];
+          posts_per_day: number;
+          default_blog_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          is_enabled?: boolean;
+          preferred_provider?: 'openai' | 'claude' | 'gemini' | 'grok';
+          preferred_categories?: string[];
+          posts_per_day?: number;
+          default_blog_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          is_enabled?: boolean;
+          preferred_provider?: 'openai' | 'claude' | 'gemini' | 'grok';
+          preferred_categories?: string[];
+          posts_per_day?: number;
+          default_blog_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'auto_generate_settings_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'auto_generate_settings_default_blog_id_fkey';
+            columns: ['default_blog_id'];
+            referencedRelation: 'blogs';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
     };
     Views: {
       [_ in never]: never;

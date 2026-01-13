@@ -18,7 +18,9 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const period = searchParams.get('period') || 'week';
+    const _period = searchParams.get('period') || 'week';
+    // period는 향후 기간별 필터링에 사용 예정
+    void _period;
 
     // 현재 날짜 기준 계산
     const now = new Date();
