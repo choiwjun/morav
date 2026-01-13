@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,38 +15,58 @@ interface ConnectedBlog {
   connectedAt: string;
 }
 
-export default function ConnectBlogPage() {
+// OAuth 결과를 처리하는 컴포넌트 (useSearchParams 사용)
+function OAuthResultHandler({
+  onSuccess,
+  onError
+}: {
+  onSuccess: (message: string) => void;
+  onError: (message: string) => void;
+}) {
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const successParam = searchParams.get('success');
+    const errorParam = searchParams.get('error');
+
+    if (successParam === 'blogger') {
+      onSuccess('구글 블로거가 연결되었습니다.');
+      window.history.replaceState({}, '', '/onboarding/connect-blog');
+    } else if (successParam === 'tistory') {
+      onSuccess('티스토리가 연결되었습니다.');
+      window.history.replaceState({}, '', '/onboarding/connect-blog');
+    }
+
+    if (errorParam) {
+      onError(decodeURIComponent(errorParam));
+      window.history.replaceState({}, '', '/onboarding/connect-blog');
+    }
+  }, [searchParams, onSuccess, onError]);
+
+  return null;
+}
+
+export default function ConnectBlogPage() {
   const [selectedPlatform, setSelectedPlatform] = useState<BlogPlatform>(null);
   const [connectedBlogs, setConnectedBlogs] = useState<ConnectedBlog[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // 페이지 로드 시 연결된 블로그 목록 가져오기 및 OAuth 결과 처리
+  // 페이지 로드 시 연결된 블로그 목록 가져오기
   useEffect(() => {
     fetchConnectedBlogs();
+  }, []);
 
-    // OAuth 콜백 결과 처리
-    const successParam = searchParams.get('success');
-    const errorParam = searchParams.get('error');
+  const handleOAuthSuccess = (message: string) => {
+    setSuccess(message);
+    fetchConnectedBlogs();
+    setTimeout(() => setSuccess(''), 5000);
+  };
 
-    if (successParam === 'blogger') {
-      setSuccess('구글 블로거가 연결되었습니다.');
-      // URL에서 파라미터 제거
-      window.history.replaceState({}, '', '/onboarding/connect-blog');
-      setTimeout(() => setSuccess(''), 5000);
-    } else if (successParam === 'tistory') {
-      setSuccess('티스토리가 연결되었습니다.');
-      window.history.replaceState({}, '', '/onboarding/connect-blog');
-      setTimeout(() => setSuccess(''), 5000);
-    }
-
-    if (errorParam) {
-      setError(decodeURIComponent(errorParam));
-      window.history.replaceState({}, '', '/onboarding/connect-blog');
-    }
-  }, [searchParams]);
+  const handleOAuthError = (message: string) => {
+    setError(message);
+  };
 
   const fetchConnectedBlogs = async () => {
     try {
@@ -248,6 +268,11 @@ export default function ConnectBlogPage() {
 
   return (
     <div className="p-8">
+      {/* OAuth 결과 처리 (Suspense로 감싸기) */}
+      <Suspense fallback={null}>
+        <OAuthResultHandler onSuccess={handleOAuthSuccess} onError={handleOAuthError} />
+      </Suspense>
+
       <div className="max-w-4xl mx-auto">
         {/* 헤더 */}
         <div className="mb-8">
