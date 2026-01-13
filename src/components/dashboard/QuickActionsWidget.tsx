@@ -26,11 +26,11 @@ export function QuickActionsWidget() {
         </Link>
 
         <Link
-          href="/settings/schedule"
+          href="/settings/auto-generate"
           className="flex items-center justify-center gap-2 w-full py-2.5 sm:py-3 border border-[#cdd6ea] text-[#0c111d] font-bold text-xs sm:text-sm rounded-lg hover:bg-gray-50 transition-colors"
         >
           <Calendar className="w-4 h-4" />
-          스케줄 변경
+          자동 생성 설정
         </Link>
       </div>
     </div>
