@@ -172,7 +172,7 @@ export interface Database {
           keyword_id: string | null;
           title: string;
           content: string;
-          status: 'pending' | 'generating' | 'generated' | 'publishing' | 'published' | 'failed';
+          status: 'draft' | 'pending' | 'scheduled' | 'generating' | 'generated' | 'publishing' | 'published' | 'failed';
           published_url: string | null;
           scheduled_at: string | null;
           published_at: string | null;
@@ -188,7 +188,7 @@ export interface Database {
           keyword_id?: string | null;
           title: string;
           content: string;
-          status?: 'pending' | 'generating' | 'generated' | 'publishing' | 'published' | 'failed';
+          status?: 'draft' | 'pending' | 'scheduled' | 'generating' | 'generated' | 'publishing' | 'published' | 'failed';
           published_url?: string | null;
           scheduled_at?: string | null;
           published_at?: string | null;
@@ -204,7 +204,7 @@ export interface Database {
           keyword_id?: string | null;
           title?: string;
           content?: string;
-          status?: 'pending' | 'generating' | 'generated' | 'publishing' | 'published' | 'failed';
+          status?: 'draft' | 'pending' | 'scheduled' | 'generating' | 'generated' | 'publishing' | 'published' | 'failed';
           published_url?: string | null;
           scheduled_at?: string | null;
           published_at?: string | null;

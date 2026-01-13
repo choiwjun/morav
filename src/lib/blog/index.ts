@@ -279,12 +279,12 @@ export async function publishScheduledPosts(): Promise<{
   try {
     const supabase = await createClient();
 
-    // 발행 예정 시간이 지난 포스트 조회
+    // 발행 예정 시간이 지난 포스트 조회 (scheduled 또는 generated 상태)
     const now = new Date().toISOString();
     const { data: posts, error: queryError } = await supabase
       .from('posts')
       .select('id, user_id, blog_id, title, content, retry_count')
-      .eq('status', 'generated')
+      .in('status', ['scheduled', 'generated'])
       .lte('scheduled_at', now)
       .lt('retry_count', DEFAULT_RETRY_CONFIG.maxRetries)
       .limit(10); // 한 번에 최대 10개

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { publishAndUpdatePost } from '@/lib/blog';
 
 export async function POST(request: NextRequest) {
   try {
@@ -148,8 +149,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 즉시 발행인 경우 발행 큐에 추가 (pending 상태면 자동 발행)
-    // 실제 발행은 background job이나 webhook에서 처리
+    // 즉시 발행인 경우 바로 발행 실행
+    if (postStatus === 'pending') {
+      const publishResult = await publishAndUpdatePost(post.id);
+
+      if (publishResult.success) {
+        return NextResponse.json({
+          success: true,
+          post: {
+            id: post.id,
+            url: publishResult.postUrl,
+          },
+          message: '발행이 완료되었습니다.',
+        });
+      } else {
+        return NextResponse.json({
+          success: false,
+          post: { id: post.id },
+          error: publishResult.error || '발행에 실패했습니다.',
+        }, { status: 500 });
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -159,9 +179,7 @@ export async function POST(request: NextRequest) {
       message:
         postStatus === 'draft'
           ? '임시 저장되었습니다.'
-          : postStatus === 'scheduled'
-          ? '예약 발행이 설정되었습니다.'
-          : '발행이 요청되었습니다.',
+          : '예약 발행이 설정되었습니다.',
     });
   } catch (error) {
     console.error('Create post API error:', error);
