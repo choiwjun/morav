@@ -1,22 +1,13 @@
 import { createBrowserClient } from '@supabase/ssr';
 import type { Database } from '@/types/database';
 
-function getSupabaseUrl(): string {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!url) {
-    throw new Error('NEXT_PUBLIC_SUPABASE_URL 환경변수가 설정되지 않았습니다.');
-  }
-  return url;
-}
-
-function getSupabaseAnonKey(): string {
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!key) {
-    throw new Error('NEXT_PUBLIC_SUPABASE_ANON_KEY 환경변수가 설정되지 않았습니다.');
-  }
-  return key;
-}
+// 환경변수는 빌드 타임에 인라인됨
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export function createClient() {
-  return createBrowserClient<Database>(getSupabaseUrl(), getSupabaseAnonKey());
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Supabase 환경변수가 설정되지 않았습니다. NEXT_PUBLIC_SUPABASE_URL과 NEXT_PUBLIC_SUPABASE_ANON_KEY를 확인하세요.');
+  }
+  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
 }
