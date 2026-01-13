@@ -1,10 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Tag, TrendingUp, Clock, Sparkles, X } from 'lucide-react';
+import {
+  RefreshCw,
+  Tag,
+  TrendingUp,
+  Clock,
+  Sparkles,
+  X,
+  Search,
+  Filter,
+  Hash,
+} from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { CATEGORIES, getCategoryById } from '@/lib/constants/categories';
 import { StoredKeyword } from '@/lib/keywords/types';
 import { toast } from 'sonner';
@@ -41,6 +51,7 @@ export default function KeywordsPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [sortOrder, setSortOrder] = useState<'recent' | 'trending'>('recent');
+  const [searchQuery, setSearchQuery] = useState('');
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [selectedKeyword, setSelectedKeyword] = useState<StoredKeyword | null>(null);
   const [selectedBlogId, setSelectedBlogId] = useState<string>('');
@@ -145,129 +156,234 @@ export default function KeywordsPage() {
     }
   };
 
+  // 검색 필터링
+  const filteredKeywords = keywords.filter((keyword) =>
+    searchQuery.trim()
+      ? keyword.keyword.toLowerCase().includes(searchQuery.trim().toLowerCase())
+      : true
+  );
+
+  // 통계 계산
+  const totalKeywords = keywords.length;
+  const naverCount = keywords.filter((k) => k.source === 'naver').length;
+  const googleCount = keywords.filter((k) => k.source === 'google').length;
+
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* 헤더 */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">인기 키워드 탐색</h1>
-          <p className="text-gray-500">
+    <div className="bg-[#f9fafa] min-h-screen">
+      {/* Header */}
+      <header className="sticky top-0 z-10 flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sm:py-5 bg-[#f9fafa]/95 backdrop-blur-sm">
+        <div className="flex flex-col gap-0.5 mb-3 sm:mb-0">
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#0c111d]">
+            인기 키워드 탐색
+          </h1>
+          <p className="text-xs sm:text-sm text-[#4562a1]">
             실시간 트렌드 키워드로 즉시 콘텐츠 생성
           </p>
         </div>
-
-        <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
+        <Button
+          variant="outline"
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="border-[#cdd6ea] text-[#4562a1] hover:bg-[#f0f4ff]"
+        >
           <RefreshCw size={16} className={refreshing ? 'animate-spin mr-2' : 'mr-2'} />
           새로고침
         </Button>
-      </div>
+      </header>
 
-      {/* 필터 */}
-      <div className="flex items-center gap-4 mb-6">
-        <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="all">모든 카테고리</option>
-          {CATEGORIES.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value as 'recent' | 'trending')}
-          className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="recent">최신순</option>
-          <option value="trending">인기순</option>
-        </select>
-      </div>
-
-      {/* 키워드 리스트 */}
-      {loading ? (
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <RefreshCw className="w-8 h-8 animate-spin text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">키워드를 불러오는 중...</p>
+      <div className="px-4 sm:px-6 lg:px-8 pb-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
+          <div className="bg-white rounded-xl border border-[#cdd6ea] shadow-sm p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-[#f0f4ff] flex items-center justify-center">
+                <Hash className="w-5 h-5 text-[#4562a1]" />
+              </div>
+              <div>
+                <p className="text-xs text-[#4562a1] font-medium">전체 키워드</p>
+                <p className="text-xl font-bold text-[#0c111d]">{totalKeywords}개</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-[#cdd6ea] shadow-sm p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                <span className="text-sm font-bold text-[#07883d]">N</span>
+              </div>
+              <div>
+                <p className="text-xs text-[#4562a1] font-medium">네이버</p>
+                <p className="text-xl font-bold text-[#07883d]">{naverCount}개</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-[#cdd6ea] shadow-sm p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <span className="text-sm font-bold text-blue-500">G</span>
+              </div>
+              <div>
+                <p className="text-xs text-[#4562a1] font-medium">구글</p>
+                <p className="text-xl font-bold text-blue-500">{googleCount}개</p>
+              </div>
+            </div>
           </div>
         </div>
-      ) : keywords.length === 0 ? (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <p className="text-gray-500 mb-4">표시할 키워드가 없습니다.</p>
-            <Button variant="outline" onClick={handleRefresh}>
-              새로고침
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {keywords.map((keyword, index) => {
-            const category = getCategoryById(keyword.category);
-            return (
-              <Card key={keyword.id} className="p-6 hover:shadow-lg transition-shadow">
-                <div className="flex items-center gap-6">
-                  {/* 순위 */}
-                  <div className="text-4xl font-bold text-gray-200 flex-shrink-0 w-16 text-center">
-                    #{index + 1}
-                  </div>
 
-                  {/* 키워드 정보 */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold mb-2 text-gray-900">
-                      {keyword.keyword}
-                    </h3>
+        {/* Filter Bar */}
+        <div className="bg-white rounded-xl border border-[#cdd6ea] shadow-sm p-4 sm:p-6 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* 검색 */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4562a1]" size={18} />
+              <Input
+                type="text"
+                placeholder="키워드 검색..."
+                className="pl-10 border-[#cdd6ea] focus:border-primary focus:ring-primary"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
 
-                    <div className="flex items-center gap-4 text-sm text-gray-500 flex-wrap">
-                      <span className="flex items-center gap-1">
-                        <Tag size={14} />
-                        {category?.name || keyword.category}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <TrendingUp size={14} />
-                        {keyword.trendScore.toLocaleString()} 검색
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock size={14} />
-                        {formatTimeAgo(keyword.collectedAt)}
-                      </span>
-                      <Badge variant="outline" className="text-xs">
-                        {getSourceLabel(keyword.source)}
-                      </Badge>
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* 카테고리 필터 */}
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="px-4 py-2 border border-[#cdd6ea] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white text-[#0c111d] min-w-[150px]"
+              >
+                <option value="all">모든 카테고리</option>
+                {CATEGORIES.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.icon} {cat.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* 정렬 */}
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as 'recent' | 'trending')}
+                className="px-4 py-2 border border-[#cdd6ea] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white text-[#0c111d] min-w-[120px]"
+              >
+                <option value="recent">최신순</option>
+                <option value="trending">인기순</option>
+              </select>
+
+              {/* 필터 적용 버튼 */}
+              <Button onClick={handleRefresh} className="flex items-center gap-2">
+                <Filter className="w-4 h-4" />
+                필터 적용
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Keywords List */}
+        <div className="bg-white rounded-xl border border-[#cdd6ea] shadow-sm overflow-hidden">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-[#4562a1]">키워드를 불러오는 중...</p>
+              </div>
+            </div>
+          ) : filteredKeywords.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Hash className="w-12 h-12 text-[#cdd6ea] mb-4" />
+              <p className="text-[#4562a1] mb-4">표시할 키워드가 없습니다.</p>
+              <Button
+                variant="outline"
+                onClick={handleRefresh}
+                className="border-[#cdd6ea] text-[#4562a1] hover:bg-[#f0f4ff]"
+              >
+                새로고침
+              </Button>
+            </div>
+          ) : (
+            <div className="divide-y divide-[#cdd6ea]">
+              {filteredKeywords.map((keyword, index) => {
+                const category = getCategoryById(keyword.category);
+                return (
+                  <div
+                    key={keyword.id}
+                    className="p-4 sm:p-6 hover:bg-[#f9fafa] transition-colors"
+                  >
+                    <div className="flex items-center gap-4 sm:gap-6">
+                      {/* 순위 */}
+                      <div className="hidden sm:flex w-12 h-12 rounded-xl bg-[#f0f4ff] items-center justify-center flex-shrink-0">
+                        <span className="text-lg font-bold text-[#4562a1]">
+                          {index + 1}
+                        </span>
+                      </div>
+
+                      {/* 키워드 정보 */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="sm:hidden text-sm font-bold text-[#4562a1]">
+                            #{index + 1}
+                          </span>
+                          <h3 className="text-base sm:text-lg font-semibold text-[#0c111d] truncate">
+                            {keyword.keyword}
+                          </h3>
+                        </div>
+
+                        <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-[#4562a1] flex-wrap">
+                          <span className="flex items-center gap-1">
+                            <Tag size={14} />
+                            {category?.name || keyword.category}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <TrendingUp size={14} />
+                            {keyword.trendScore.toLocaleString()}
+                          </span>
+                          <span className="flex items-center gap-1 hidden sm:flex">
+                            <Clock size={14} />
+                            {formatTimeAgo(keyword.collectedAt)}
+                          </span>
+                          <Badge
+                            variant="outline"
+                            className={`text-xs border-[#cdd6ea] ${
+                              keyword.source === 'naver'
+                                ? 'text-[#07883d] bg-green-50'
+                                : 'text-blue-500 bg-blue-50'
+                            }`}
+                          >
+                            {getSourceLabel(keyword.source)}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {/* 액션 */}
+                      <div className="flex-shrink-0">
+                        <Button
+                          onClick={() => handleGenerateFromKeyword(keyword)}
+                          className="flex items-center gap-2"
+                          size="sm"
+                        >
+                          <Sparkles size={16} />
+                          <span className="hidden sm:inline">콘텐츠 생성</span>
+                          <span className="sm:hidden">생성</span>
+                        </Button>
+                      </div>
                     </div>
                   </div>
-
-                  {/* 액션 */}
-                  <div className="flex-shrink-0">
-                    <Button
-                      variant="default"
-                      onClick={() => handleGenerateFromKeyword(keyword)}
-                    >
-                      <Sparkles size={16} className="mr-2" />
-                      콘텐츠 생성
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
+                );
+              })}
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* 콘텐츠 생성 모달 */}
       {showGenerateModal && selectedKeyword && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md mx-4">
-            <CardContent className="p-6">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl border border-[#cdd6ea] shadow-lg w-full max-w-md">
+            <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold">콘텐츠 생성</h3>
+                <h3 className="text-lg font-bold text-[#0c111d]">콘텐츠 생성</h3>
                 <button
                   onClick={() => setShowGenerateModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="p-2 text-[#4562a1] hover:bg-[#f0f4ff] rounded-lg transition-colors"
                 >
                   <X size={20} />
                 </button>
@@ -275,20 +391,25 @@ export default function KeywordsPage() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-[#0c111d] mb-2">
                     키워드
                   </label>
-                  <p className="text-gray-900 font-semibold">{selectedKeyword.keyword}</p>
+                  <div className="flex items-center gap-2 p-3 bg-[#f0f4ff] rounded-lg">
+                    <Tag size={16} className="text-[#4562a1]" />
+                    <span className="text-[#0c111d] font-semibold">
+                      {selectedKeyword.keyword}
+                    </span>
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-[#0c111d] mb-2">
                     발행할 블로그
                   </label>
                   <select
                     value={selectedBlogId}
                     onChange={(e) => setSelectedBlogId(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-[#cdd6ea] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white text-[#0c111d]"
                   >
                     {blogs.map((blog) => (
                       <option key={blog.id} value={blog.id}>
@@ -301,7 +422,7 @@ export default function KeywordsPage() {
                 <div className="flex gap-3 pt-4">
                   <Button
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 border-[#cdd6ea] text-[#4562a1] hover:bg-[#f0f4ff]"
                     onClick={() => setShowGenerateModal(false)}
                     disabled={generating}
                   >
@@ -326,8 +447,8 @@ export default function KeywordsPage() {
                   </Button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       )}
     </div>

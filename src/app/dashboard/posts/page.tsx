@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, Filter, FileText, CheckCircle, XCircle, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { PostsTable } from '@/components/dashboard/PostsTable';
 import { toast } from 'sonner';
 import { DEFAULT_POSTS_PER_PAGE } from '@/lib/constants/dashboard';
@@ -51,6 +51,7 @@ interface BlogsResponse {
 }
 
 export default function PostsPage() {
+  const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,6 +99,7 @@ export default function PostsPage() {
 
       if (searchQuery.trim()) {
         params.append('search', searchQuery.trim());
+        params.append('keyword', searchQuery.trim());
       }
 
       const response = await fetch(`/api/posts?${params.toString()}`);
@@ -176,25 +178,80 @@ export default function PostsPage() {
     }
   };
 
-  return (
-    <div className="max-w-7xl mx-auto">
-      {/* 헤더 */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">발행 관리</h1>
-        <p className="text-gray-500">모든 발행 기록을 조회하고 관리하세요</p>
-      </div>
+  // 통계 계산
+  const totalCount = pagination.total;
+  const publishedCount = posts.filter(p => p.status === 'published').length;
+  const failedCount = posts.filter(p => p.status === 'failed').length;
 
-      {/* 필터 바 */}
-      <Card className="mb-6">
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-4">
+  return (
+    <div className="bg-[#f9fafa] min-h-screen">
+      {/* Header */}
+      <header className="sticky top-0 z-10 flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-6 lg:px-8 py-4 sm:py-5 bg-[#f9fafa]/95 backdrop-blur-sm">
+        <div className="flex flex-col gap-0.5 mb-3 sm:mb-0">
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#0c111d]">
+            발행 관리
+          </h1>
+          <p className="text-xs sm:text-sm text-[#4562a1]">
+            모든 발행 기록을 조회하고 관리하세요
+          </p>
+        </div>
+        <Button
+          onClick={() => router.push('/dashboard/posts/new')}
+          className="bg-[#4562a1] hover:bg-[#3a5289] flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          새 포스트 작성
+        </Button>
+      </header>
+
+      <div className="px-4 sm:px-6 lg:px-8 pb-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
+          <div className="bg-white rounded-xl border border-[#cdd6ea] shadow-sm p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-[#f0f4ff] flex items-center justify-center">
+                <FileText className="w-5 h-5 text-[#4562a1]" />
+              </div>
+              <div>
+                <p className="text-xs text-[#4562a1] font-medium">전체</p>
+                <p className="text-xl font-bold text-[#0c111d]">{totalCount}건</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-[#cdd6ea] shadow-sm p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-[#07883d]" />
+              </div>
+              <div>
+                <p className="text-xs text-[#4562a1] font-medium">발행 완료</p>
+                <p className="text-xl font-bold text-[#07883d]">{publishedCount}건</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-[#cdd6ea] shadow-sm p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center">
+                <XCircle className="w-5 h-5 text-red-500" />
+              </div>
+              <div>
+                <p className="text-xs text-[#4562a1] font-medium">실패</p>
+                <p className="text-xl font-bold text-red-500">{failedCount}건</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filter Bar */}
+        <div className="bg-white rounded-xl border border-[#cdd6ea] shadow-sm p-4 sm:p-6 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4">
             {/* 검색 */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4562a1]" size={18} />
               <Input
                 type="text"
-                placeholder="제목으로 검색..."
-                className="pl-10"
+                placeholder="제목, 키워드로 검색..."
+                className="pl-10 border-[#cdd6ea] focus:border-primary focus:ring-primary"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
@@ -205,70 +262,76 @@ export default function PostsPage() {
               />
             </div>
 
-            {/* 블로그 필터 */}
-            <select
-              value={blogFilter}
-              onChange={(e) => {
-                setBlogFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[150px]"
-            >
-              <option value="all">모든 블로그</option>
-              {blogs.map((blog) => (
-                <option key={blog.id} value={blog.id}>
-                  {blog.name}
-                </option>
-              ))}
-            </select>
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* 블로그 필터 */}
+              <select
+                value={blogFilter}
+                onChange={(e) => {
+                  setBlogFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="px-4 py-2 border border-[#cdd6ea] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white text-[#0c111d] min-w-[150px]"
+              >
+                <option value="all">모든 블로그</option>
+                {blogs.map((blog) => (
+                  <option key={blog.id} value={blog.id}>
+                    {blog.name}
+                  </option>
+                ))}
+              </select>
 
-            {/* 상태 필터 */}
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[150px]"
-            >
-              <option value="all">모든 상태</option>
-              <option value="published">발행 완료</option>
-              <option value="scheduled">예약 대기</option>
-              <option value="pending">대기 중</option>
-              <option value="generating">생성 중</option>
-              <option value="publishing">발행 중</option>
-              <option value="failed">발행 실패</option>
-            </select>
+              {/* 상태 필터 */}
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="px-4 py-2 border border-[#cdd6ea] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white text-[#0c111d] min-w-[150px]"
+              >
+                <option value="all">모든 상태</option>
+                <option value="published">발행 완료</option>
+                <option value="scheduled">예약 대기</option>
+                <option value="pending">대기 중</option>
+                <option value="generating">생성 중</option>
+                <option value="publishing">발행 중</option>
+                <option value="failed">발행 실패</option>
+              </select>
 
-            {/* 기간 필터 */}
-            <select
-              value={dateFilter}
-              onChange={(e) => {
-                setDateFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[120px]"
-            >
-              <option value="all">전체</option>
-              <option value="today">오늘</option>
-              <option value="week">이번 주</option>
-              <option value="month">이번 달</option>
-            </select>
+              {/* 기간 필터 */}
+              <select
+                value={dateFilter}
+                onChange={(e) => {
+                  setDateFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="px-4 py-2 border border-[#cdd6ea] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white text-[#0c111d] min-w-[120px]"
+              >
+                <option value="all">전체</option>
+                <option value="today">오늘</option>
+                <option value="week">이번 주</option>
+                <option value="month">이번 달</option>
+              </select>
 
-            {/* 검색 버튼 */}
-            <Button onClick={handleSearch}>검색</Button>
+              {/* 검색 버튼 */}
+              <Button
+                onClick={handleSearch}
+                className="flex items-center gap-2"
+              >
+                <Filter className="w-4 h-4" />
+                필터 적용
+              </Button>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* 포스트 테이블 */}
-      <Card>
-        <CardContent className="p-0">
+        {/* Posts Table */}
+        <div className="bg-white rounded-xl border border-[#cdd6ea] shadow-sm overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                <p className="text-gray-500">포스트를 불러오는 중...</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-[#4562a1]">포스트를 불러오는 중...</p>
               </div>
             </div>
           ) : (
@@ -277,8 +340,8 @@ export default function PostsPage() {
 
               {/* 페이지네이션 */}
               {pagination.totalPages > 1 && (
-                <div className="p-6 border-t flex items-center justify-between">
-                  <p className="text-sm text-gray-500">
+                <div className="p-4 sm:p-6 border-t border-[#cdd6ea] flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <p className="text-sm text-[#4562a1]">
                     총 {pagination.total}건 중{' '}
                     {(pagination.page - 1) * pagination.limit + 1}-
                     {Math.min(pagination.page * pagination.limit, pagination.total)}건
@@ -290,8 +353,9 @@ export default function PostsPage() {
                       size="sm"
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
+                      className="border-[#cdd6ea] text-[#4562a1] hover:bg-[#f0f4ff]"
                     >
-                      이전
+                      <ChevronLeft className="w-4 h-4" />
                     </Button>
 
                     <div className="flex items-center gap-1">
@@ -310,12 +374,16 @@ export default function PostsPage() {
                             index > 0 && array[index] - array[index - 1] > 1;
                           return (
                             <div key={page} className="flex items-center gap-1">
-                              {showEllipsis && <span className="px-2">...</span>}
+                              {showEllipsis && <span className="px-2 text-[#4562a1]">...</span>}
                               <Button
                                 variant={currentPage === page ? 'default' : 'outline'}
                                 size="sm"
                                 onClick={() => setCurrentPage(page)}
-                                className="min-w-[40px]"
+                                className={`min-w-[36px] ${
+                                  currentPage === page
+                                    ? ''
+                                    : 'border-[#cdd6ea] text-[#4562a1] hover:bg-[#f0f4ff]'
+                                }`}
                               >
                                 {page}
                               </Button>
@@ -331,16 +399,17 @@ export default function PostsPage() {
                         setCurrentPage((p) => Math.min(pagination.totalPages, p + 1))
                       }
                       disabled={currentPage === pagination.totalPages}
+                      className="border-[#cdd6ea] text-[#4562a1] hover:bg-[#f0f4ff]"
                     >
-                      다음
+                      <ChevronRight className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
               )}
             </>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

@@ -3,41 +3,50 @@ import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
+// 프론트엔드와 동일한 snake_case 필드명 사용
 interface NotificationSettings {
-  emailOnPublishSuccess: boolean;
-  emailOnPublishFail: boolean;
-  emailOnSubscriptionChange: boolean;
-  emailOnUsageLimit: boolean;
-  emailMarketing: boolean;
-  emailNewsletter: boolean;
-}
-
-const DEFAULT_SETTINGS: NotificationSettings = {
-  emailOnPublishSuccess: true,
-  emailOnPublishFail: true,
-  emailOnSubscriptionChange: true,
-  emailOnUsageLimit: true,
-  emailMarketing: false,
-  emailNewsletter: false,
-};
-
-function transformToApiResponse(dbSettings: {
+  // 이메일 알림
   email_on_publish_success: boolean;
   email_on_publish_fail: boolean;
   email_on_subscription_change: boolean;
   email_on_usage_limit: boolean;
+  // 주간 리포트
+  email_weekly_report: boolean;
+  // 마케팅 알림
   email_marketing: boolean;
-  email_newsletter: boolean;
-}): NotificationSettings {
-  return {
-    emailOnPublishSuccess: dbSettings.email_on_publish_success,
-    emailOnPublishFail: dbSettings.email_on_publish_fail,
-    emailOnSubscriptionChange: dbSettings.email_on_subscription_change,
-    emailOnUsageLimit: dbSettings.email_on_usage_limit,
-    emailMarketing: dbSettings.email_marketing,
-    emailNewsletter: dbSettings.email_newsletter,
-  };
+  email_product_updates: boolean;
+  // 앱 푸시 알림
+  push_enabled: boolean;
+  push_on_publish: boolean;
+  push_on_important: boolean;
 }
+
+const DEFAULT_SETTINGS: NotificationSettings = {
+  email_on_publish_success: true,
+  email_on_publish_fail: true,
+  email_on_subscription_change: true,
+  email_on_usage_limit: true,
+  email_weekly_report: true,
+  email_marketing: false,
+  email_product_updates: true,
+  push_enabled: false,
+  push_on_publish: true,
+  push_on_important: true,
+};
+
+// DB 필드명 목록 (유효성 검사용)
+const VALID_FIELDS = [
+  'email_on_publish_success',
+  'email_on_publish_fail',
+  'email_on_subscription_change',
+  'email_on_usage_limit',
+  'email_weekly_report',
+  'email_marketing',
+  'email_product_updates',
+  'push_enabled',
+  'push_on_publish',
+  'push_on_important',
+] as const;
 
 /**
  * GET /api/notifications
@@ -80,9 +89,24 @@ export async function GET() {
       });
     }
 
+    // DB에서 가져온 설정을 기본값과 병합 (새 필드 지원)
+    const mergedSettings: NotificationSettings = {
+      ...DEFAULT_SETTINGS,
+      email_on_publish_success: settings.email_on_publish_success ?? DEFAULT_SETTINGS.email_on_publish_success,
+      email_on_publish_fail: settings.email_on_publish_fail ?? DEFAULT_SETTINGS.email_on_publish_fail,
+      email_on_subscription_change: settings.email_on_subscription_change ?? DEFAULT_SETTINGS.email_on_subscription_change,
+      email_on_usage_limit: settings.email_on_usage_limit ?? DEFAULT_SETTINGS.email_on_usage_limit,
+      email_weekly_report: settings.email_weekly_report ?? DEFAULT_SETTINGS.email_weekly_report,
+      email_marketing: settings.email_marketing ?? DEFAULT_SETTINGS.email_marketing,
+      email_product_updates: settings.email_product_updates ?? DEFAULT_SETTINGS.email_product_updates,
+      push_enabled: settings.push_enabled ?? DEFAULT_SETTINGS.push_enabled,
+      push_on_publish: settings.push_on_publish ?? DEFAULT_SETTINGS.push_on_publish,
+      push_on_important: settings.push_on_important ?? DEFAULT_SETTINGS.push_on_important,
+    };
+
     return NextResponse.json({
       success: true,
-      settings: transformToApiResponse(settings),
+      settings: mergedSettings,
     });
   } catch (error) {
     console.error('Get notification settings error:', error);
@@ -113,19 +137,10 @@ export async function PATCH(request: NextRequest) {
 
     const body = await request.json();
 
-    // 유효성 검사
-    const validFields = [
-      'emailOnPublishSuccess',
-      'emailOnPublishFail',
-      'emailOnSubscriptionChange',
-      'emailOnUsageLimit',
-      'emailMarketing',
-      'emailNewsletter',
-    ];
-
+    // 유효성 검사 및 업데이트 데이터 구성 (snake_case 필드명 직접 사용)
     const updateData: Record<string, boolean> = {};
 
-    for (const field of validFields) {
+    for (const field of VALID_FIELDS) {
       if (field in body) {
         if (typeof body[field] !== 'boolean') {
           return NextResponse.json(
@@ -133,27 +148,16 @@ export async function PATCH(request: NextRequest) {
             { status: 400 }
           );
         }
+        updateData[field] = body[field];
       }
     }
 
-    // camelCase를 snake_case로 변환
-    if ('emailOnPublishSuccess' in body) {
-      updateData.email_on_publish_success = body.emailOnPublishSuccess;
-    }
-    if ('emailOnPublishFail' in body) {
-      updateData.email_on_publish_fail = body.emailOnPublishFail;
-    }
-    if ('emailOnSubscriptionChange' in body) {
-      updateData.email_on_subscription_change = body.emailOnSubscriptionChange;
-    }
-    if ('emailOnUsageLimit' in body) {
-      updateData.email_on_usage_limit = body.emailOnUsageLimit;
-    }
-    if ('emailMarketing' in body) {
-      updateData.email_marketing = body.emailMarketing;
-    }
-    if ('emailNewsletter' in body) {
-      updateData.email_newsletter = body.emailNewsletter;
+    // 업데이트할 데이터가 없는 경우
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        { success: false, error: '업데이트할 설정이 없습니다.' },
+        { status: 400 }
+      );
     }
 
     // upsert로 저장 (없으면 생성, 있으면 업데이트)
@@ -180,10 +184,16 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
+    // 저장된 설정을 기본값과 병합하여 반환
+    const mergedSettings: NotificationSettings = {
+      ...DEFAULT_SETTINGS,
+      ...savedSettings,
+    };
+
     return NextResponse.json({
       success: true,
       message: '알림 설정이 업데이트되었습니다.',
-      settings: transformToApiResponse(savedSettings),
+      settings: mergedSettings,
     });
   } catch (error) {
     console.error('Update notification settings error:', error);

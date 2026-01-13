@@ -1,5 +1,7 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import type { Database } from '@/types/database';
 
 // 허용된 리다이렉트 경로 목록
 const ALLOWED_REDIRECT_PATHS = ['/dashboard', '/profile', '/settings', '/'];
@@ -40,13 +42,39 @@ export async function GET(request: Request) {
   const safeRedirectPath = isValidRedirectPath(next) ? next : '/dashboard';
 
   if (code) {
-    const supabase = await createClient();
+    const cookieStore = await cookies();
+
+    const supabase = createServerClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options as CookieOptions)
+              );
+            } catch {
+              // Server Component에서 호출된 경우 무시
+            }
+          },
+        },
+      }
+    );
+
     const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
     if (exchangeError) {
       console.error('Exchange code error:', exchangeError.message);
+      // PKCE 관련 오류인 경우 더 친절한 메시지
+      const errorMessage = exchangeError.message.includes('code verifier')
+        ? '인증 세션이 만료되었습니다. 다시 로그인해주세요.'
+        : exchangeError.message;
       return NextResponse.redirect(
-        `${origin}/auth/login?error=exchange_error&message=${encodeURIComponent(exchangeError.message)}`
+        `${origin}/auth/login?error=exchange_error&message=${encodeURIComponent(errorMessage)}`
       );
     }
 

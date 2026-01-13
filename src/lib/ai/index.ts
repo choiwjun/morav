@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { decrypt } from '@/lib/crypto';
-import {
+import type {
   AIProvider,
   ContentGenerationParams,
   ContentGenerationResult,
@@ -14,8 +14,8 @@ import { generateContentWithOpenAI, generateImageWithOpenAI } from './openai';
 import { generateContentWithClaude } from './claude';
 import { generateContentWithGemini, generateImageWithGemini } from './gemini';
 
-// Re-export types
-export * from './types';
+// Re-export types using export type for 'use server' compatibility
+export type { AIProvider, ContentGenerationParams, ContentGenerationResult, ImageGenerationParams, ImageGenerationResult, AIGeneratorConfig } from './types';
 
 /**
  * 사용자의 API 키 가져오기

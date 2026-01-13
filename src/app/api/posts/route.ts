@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status') || undefined;
     const blogId = searchParams.get('blogId') || undefined;
     const search = searchParams.get('search') || undefined;
+    const keywordSearch = searchParams.get('keyword') || undefined;
     const dateFilter = searchParams.get('dateFilter') || 'all'; // 'today', 'week', 'month', 'all'
 
     // limit 검증
@@ -114,7 +115,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const formattedPosts = (posts || []).map((post) => ({
+    let formattedPosts = (posts || []).map((post) => ({
       id: post.id,
       title: post.title,
       content: post.content,
@@ -135,6 +136,14 @@ export async function GET(request: NextRequest) {
           ? (post.keywords[0] as { keyword: string }).keyword
           : null,
     }));
+
+    // 키워드 검색 필터 (클라이언트 사이드 필터링)
+    if (keywordSearch && keywordSearch.trim()) {
+      const keywordTerm = keywordSearch.trim().toLowerCase();
+      formattedPosts = formattedPosts.filter(
+        (post) => post.keyword && post.keyword.toLowerCase().includes(keywordTerm)
+      );
+    }
 
     const totalPages = count ? Math.ceil(count / safeLimit) : 1;
 

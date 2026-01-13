@@ -108,6 +108,100 @@ export async function GET(
 }
 
 /**
+ * PATCH /api/posts/[id]
+ * 포스트 수정
+ */
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: postId } = await params;
+
+    if (!postId) {
+      return NextResponse.json(
+        { success: false, error: '포스트 ID가 필요합니다.' },
+        { status: 400 }
+      );
+    }
+
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: '로그인이 필요합니다.' },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const { title, content } = body;
+
+    // 수정 가능한 필드만 업데이트
+    const updateData: { title?: string; content?: string; updated_at: string } = {
+      updated_at: new Date().toISOString(),
+    };
+
+    if (title !== undefined) {
+      if (!title.trim()) {
+        return NextResponse.json(
+          { success: false, error: '제목을 입력해주세요.' },
+          { status: 400 }
+        );
+      }
+      updateData.title = title.trim();
+    }
+
+    if (content !== undefined) {
+      if (!content.trim()) {
+        return NextResponse.json(
+          { success: false, error: '내용을 입력해주세요.' },
+          { status: 400 }
+        );
+      }
+      updateData.content = content.trim();
+    }
+
+    // 포스트 소유권 확인 및 수정
+    const { data: updatedPost, error: updateError } = await supabase
+      .from('posts')
+      .update(updateData)
+      .eq('id', postId)
+      .eq('user_id', user.id)
+      .select()
+      .single();
+
+    if (updateError || !updatedPost) {
+      console.error('Update post error:', updateError);
+      return NextResponse.json(
+        { success: false, error: '포스트 수정에 실패했습니다.' },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: '포스트가 수정되었습니다.',
+      post: {
+        id: updatedPost.id,
+        title: updatedPost.title,
+        content: updatedPost.content,
+        updatedAt: updatedPost.updated_at,
+      },
+    });
+  } catch (error) {
+    console.error('Update post error:', error);
+    return NextResponse.json(
+      { success: false, error: '포스트 수정 중 오류가 발생했습니다.' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
  * DELETE /api/posts/[id]
  * 포스트 삭제
  */
