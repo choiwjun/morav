@@ -110,7 +110,7 @@ export async function generateContentWithClaude(
         max_tokens: maxTokens,
         temperature,
         system:
-          '당신은 SEO에 최적화된 고품질 블로그 콘텐츠를 작성하는 전문 작가입니다. 항상 JSON 형식으로 응답합니다.',
+          '당신은 구글 애드센스 심사 통과 기준에 맞는 고품질 블로그 콘텐츠를 작성하는 전문 작가입니다. HTML 형식으로 작성하며 항상 JSON 형식으로 응답합니다.',
         messages: [
           {
             role: 'user',
