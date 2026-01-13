@@ -329,7 +329,8 @@ function parseGrokResponse(responseText: string): GeneratedContent | null {
 export async function generateImagesAndReplacePlaceholders(
   content: string,
   imagePrompts: ImagePrompt[],
-  provider: AIProvider
+  provider: AIProvider,
+  customConfig?: Partial<AIGeneratorConfig>
 ): Promise<{
   success: boolean;
   content: string;
@@ -342,44 +343,75 @@ export async function generateImagesAndReplacePlaceholders(
   let generatedImages = 0;
   let failedImages = 0;
 
-  // 이미지 생성을 지원하는 프로바이더 확인
-  const imageProvider = provider === 'openai' || provider === 'gemini' ? provider : 'openai';
+  // 이미지 생성을 지원하는 프로바이더 확인 (openai 또는 gemini)
+  // 다른 프로바이더 사용 시 openai로 폴백하되, API 키가 있는지 확인
+  let imageProvider: AIProvider = provider;
+  if (provider !== 'openai' && provider !== 'gemini') {
+    // openai 또는 gemini API 키가 있는지 확인
+    const openaiKey = await getUserApiKey('openai');
+    const geminiKey = await getUserApiKey('gemini');
+
+    if (openaiKey) {
+      imageProvider = 'openai';
+    } else if (geminiKey) {
+      imageProvider = 'gemini';
+    } else {
+      // 이미지 생성 가능한 API 키가 없음
+      return {
+        success: false,
+        content,
+        generatedImages: 0,
+        failedImages: imagePrompts.length,
+        errors: ['이미지 생성을 위한 OpenAI 또는 Gemini API 키가 필요합니다.'],
+      };
+    }
+  }
+
+  console.log(`=== Image Generation Debug ===`);
+  console.log(`Provider: ${provider}, Image Provider: ${imageProvider}`);
+  console.log(`Image Prompts count: ${imagePrompts.length}`);
 
   for (let i = 0; i < imagePrompts.length; i++) {
     const imagePrompt = imagePrompts[i];
-    const placeholderPattern = new RegExp(`image-placeholder-${i + 1}\\.jpg`, 'g');
+
+    // placeholder 패턴들 (1부터 시작, 0부터 시작, 대소문자 변형 등)
+    const placeholder1 = `image-placeholder-${i + 1}.jpg`;
+    const placeholder0 = `image-placeholder-${i}.jpg`;
 
     // placeholder가 콘텐츠에 존재하는지 확인
-    if (!placeholderPattern.test(updatedContent)) {
-      // 다른 패턴도 시도 (0부터 시작하는 경우)
-      const altPattern = new RegExp(`image-placeholder-${i}\\.jpg`, 'g');
-      if (!altPattern.test(updatedContent)) {
-        continue;
-      }
+    const hasPlaceholder1 = updatedContent.includes(placeholder1);
+    const hasPlaceholder0 = updatedContent.includes(placeholder0);
+
+    console.log(`Image ${i}: prompt="${imagePrompt.prompt?.substring(0, 50)}...", placeholder1=${hasPlaceholder1}, placeholder0=${hasPlaceholder0}`);
+
+    if (!hasPlaceholder1 && !hasPlaceholder0) {
+      console.log(`Skipping image ${i}: no placeholder found`);
+      continue;
     }
 
     try {
       // 이미지 생성
+      console.log(`Generating image ${i + 1} with ${imageProvider}...`);
       const imageResult = await generateImage(
         {
           prompt: imagePrompt.prompt,
           style: 'realistic',
           size: '1024x1024',
         },
-        imageProvider
+        imageProvider,
+        customConfig
       );
+
+      console.log(`Image ${i + 1} result: success=${imageResult.success}, url=${imageResult.image?.url?.substring(0, 50)}...`);
 
       if (imageResult.success && imageResult.image?.url) {
         // placeholder를 실제 이미지 URL로 교체
-        updatedContent = updatedContent.replace(
-          new RegExp(`image-placeholder-${i + 1}\\.jpg`, 'g'),
-          imageResult.image.url
-        );
-        // 0부터 시작하는 패턴도 교체
-        updatedContent = updatedContent.replace(
-          new RegExp(`image-placeholder-${i}\\.jpg`, 'g'),
-          imageResult.image.url
-        );
+        if (hasPlaceholder1) {
+          updatedContent = updatedContent.split(placeholder1).join(imageResult.image.url);
+        }
+        if (hasPlaceholder0) {
+          updatedContent = updatedContent.split(placeholder0).join(imageResult.image.url);
+        }
         generatedImages++;
       } else {
         failedImages++;
@@ -387,9 +419,14 @@ export async function generateImagesAndReplacePlaceholders(
       }
     } catch (error) {
       failedImages++;
-      errors.push(`이미지 ${i + 1} 생성 중 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+      const errorMsg = error instanceof Error ? error.message : '알 수 없는 오류';
+      console.error(`Image ${i + 1} generation error:`, errorMsg);
+      errors.push(`이미지 ${i + 1} 생성 중 오류: ${errorMsg}`);
     }
   }
+
+  console.log(`=== Image Generation Complete ===`);
+  console.log(`Generated: ${generatedImages}, Failed: ${failedImages}`);
 
   return {
     success: failedImages === 0,
@@ -431,7 +468,8 @@ export async function generateContentWithImages(
   const imageResult = await generateImagesAndReplacePlaceholders(
     contentResult.data.content,
     imagePrompts,
-    provider
+    provider,
+    customConfig
   );
 
   // 3. 결과 반환
