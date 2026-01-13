@@ -100,10 +100,6 @@ export default async function DashboardPage() {
             title="오늘 발행"
             value={stats.totalPosts}
             suffix="건"
-            trend={{
-              value: 12,
-              direction: 'up',
-            }}
           />
           <MetricCard
             icon={<CheckCircle className="w-5 h-5 text-[#07883d]" />}
@@ -116,10 +112,6 @@ export default async function DashboardPage() {
             title="발행 실패"
             value={stats.failedPosts}
             suffix="건"
-            trend={stats.failedPosts > 0 ? {
-              value: 50,
-              direction: 'down',
-            } : undefined}
           />
           <MetricCard
             icon={<TrendingUp className="w-5 h-5 text-purple-500" />}
@@ -143,7 +135,6 @@ export default async function DashboardPage() {
             <SubscriptionWidget subscription={subscription} />
             <WeeklyStatsWidget
               publishCount={stats.publishedPosts}
-              avgViews={1234}
               successRate={successRate}
             />
             <QuickActionsWidget />

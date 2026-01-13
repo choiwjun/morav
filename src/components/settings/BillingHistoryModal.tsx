@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
-import { formatDateTime } from '@/lib/utils/dashboard';
 import { toast } from 'sonner';
 
 interface BillingHistoryItem {
@@ -12,14 +11,13 @@ interface BillingHistoryItem {
   orderId: string;
   planName: string;
   amount: number;
-  status: 'completed' | 'failed' | 'refunded';
+  status: 'completed' | 'failed' | 'cancelled';
   createdAt: string;
-  paidAt: string | null;
 }
 
 interface BillingHistoryResponse {
   success: boolean;
-  history?: BillingHistoryItem[];
+  payments?: BillingHistoryItem[];
   error?: string;
 }
 
@@ -46,7 +44,7 @@ function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
     completed: '완료',
     failed: '실패',
-    refunded: '환불됨',
+    cancelled: '취소됨',
   };
   return labels[status] || status;
 }
@@ -55,7 +53,7 @@ function getStatusColor(status: string): string {
   const colors: Record<string, string> = {
     completed: 'text-green-600 bg-green-50',
     failed: 'text-red-600 bg-red-50',
-    refunded: 'text-gray-600 bg-gray-50',
+    cancelled: 'text-gray-600 bg-gray-50',
   };
   return colors[status] || 'text-gray-600 bg-gray-50';
 }
@@ -73,22 +71,15 @@ export function BillingHistoryModal({ isOpen, onClose }: BillingHistoryModalProp
   const loadHistory = async () => {
     try {
       setLoading(true);
-      // TODO: 결제 내역 API 구현 후 실제 API 호출
-      // const response = await fetch('/api/payment/history');
-      // const data: BillingHistoryResponse = await response.json();
-
-      // 임시 데이터 (API 구현 전)
-      const data: BillingHistoryResponse = {
-        success: true,
-        history: [],
-      };
+      const response = await fetch('/api/payment/history');
+      const data: BillingHistoryResponse = await response.json();
 
       if (!data.success) {
         toast.error(data.error || '결제 내역을 불러올 수 없습니다.');
         return;
       }
 
-      setHistory(data.history || []);
+      setHistory(data.payments || []);
     } catch (error) {
       console.error('Load billing history error:', error);
       toast.error('결제 내역을 불러오는 중 오류가 발생했습니다.');
@@ -148,8 +139,7 @@ export function BillingHistoryModal({ isOpen, onClose }: BillingHistoryModalProp
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-gray-600">
-                    <p>결제일: {item.paidAt ? formatDate(item.paidAt) : '-'}</p>
-                    <p>생성일: {formatDateTime(item.createdAt)}</p>
+                    <p>결제일: {formatDate(item.createdAt)}</p>
                   </div>
                   <p className="text-xl font-bold">₩{item.amount.toLocaleString()}</p>
                 </div>
