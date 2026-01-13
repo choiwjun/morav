@@ -1,8 +1,18 @@
 import { NextResponse } from 'next/server';
 import { connectBlogger } from '@/lib/actions/blog';
+import { getAppUrl } from '@/lib/utils/env';
 
 export async function GET() {
   try {
+    // 디버깅: 실제 redirect_uri 확인
+    const appUrl = getAppUrl();
+    const redirectUri = `${appUrl}/api/blog/blogger/callback`;
+    console.log('=== Blogger OAuth Debug ===');
+    console.log('NEXT_PUBLIC_APP_URL:', process.env.NEXT_PUBLIC_APP_URL);
+    console.log('getAppUrl():', appUrl);
+    console.log('redirect_uri:', redirectUri);
+    console.log('===========================');
+
     const result = await connectBlogger();
 
     if (!result.success) {
