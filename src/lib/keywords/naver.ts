@@ -1,4 +1,5 @@
 // 네이버 트렌드 키워드 수집기
+// 네이버 데이터랩 API를 사용하여 실제 검색 트렌드 키워드를 수집합니다.
 
 import { TrendKeyword, KeywordCollectionResult } from './types';
 import { classifyKeyword } from './classifier';
@@ -6,50 +7,47 @@ import { classifyKeyword } from './classifier';
 const NAVER_DATALAB_SEARCH_URL = 'https://openapi.naver.com/v1/datalab/search';
 const REQUEST_TIMEOUT = 15000; // 15초
 
-// 수집할 인기 키워드 그룹 (최대 5개 그룹, 각 그룹당 최대 20개 키워드)
-const KEYWORD_GROUPS = [
-  {
-    groupName: 'AI 트렌드',
-    keywords: ['AI', 'ChatGPT', '인공지능', 'GPT', '클로드'],
-    category: 'it',
-  },
-  {
-    groupName: '스마트폰',
-    keywords: ['아이폰', '갤럭시', '삼성폰', '애플', '폴드'],
-    category: 'it',
-  },
-  {
-    groupName: '투자',
-    keywords: ['주식', '비트코인', '부동산', '금투자', 'ETF'],
-    category: 'business',
-  },
-  {
-    groupName: '건강',
-    keywords: ['다이어트', '운동', '헬스', '필라테스', '요가'],
-    category: 'health',
-  },
-  {
-    groupName: '여행',
-    keywords: ['국내여행', '해외여행', '호텔', '항공권', '제주도'],
-    category: 'travel',
-  },
-];
-
-// 추가 개별 키워드 그룹들 (순차적으로 API 호출)
-const ADDITIONAL_KEYWORD_SETS = [
+// 실제 인기 있는 세부 키워드들 (카테고리별 구체적인 검색어)
+const TRENDING_KEYWORD_GROUPS = [
+  // IT/기술 - 구체적인 검색어
   [
-    { groupName: '넷플릭스', keywords: ['넷플릭스', '드라마추천'], category: 'entertainment' },
-    { groupName: '유튜브', keywords: ['유튜브', '유튜버'], category: 'entertainment' },
-    { groupName: 'K-pop', keywords: ['아이돌', 'K-pop', 'BTS'], category: 'entertainment' },
-    { groupName: '영화', keywords: ['영화', '영화추천', '개봉영화'], category: 'entertainment' },
-    { groupName: '맛집', keywords: ['맛집', '맛집추천', '카페'], category: 'food' },
+    { groupName: 'ChatGPT 사용법', keywords: ['ChatGPT 사용법', 'GPT 프롬프트'], category: 'it' },
+    { groupName: '아이폰16 후기', keywords: ['아이폰16 후기', '아이폰16 가격'], category: 'it' },
+    { groupName: '갤럭시S24 비교', keywords: ['갤럭시S24 비교', '갤럭시S24 스펙'], category: 'it' },
+    { groupName: '클로드 AI', keywords: ['클로드 AI', 'Claude AI'], category: 'it' },
+    { groupName: '노트북 추천', keywords: ['노트북 추천', '노트북 비교'], category: 'it' },
   ],
+  // 경제/금융
   [
-    { groupName: '뷰티', keywords: ['화장품', '스킨케어', '뷰티'], category: 'lifestyle' },
-    { groupName: '패션', keywords: ['패션', '코디', '옷추천'], category: 'lifestyle' },
-    { groupName: '자동차', keywords: ['전기차', '테슬라', '자동차'], category: 'it' },
-    { groupName: '게임', keywords: ['게임', '스팀', '닌텐도'], category: 'entertainment' },
-    { groupName: '부업', keywords: ['부업', '재테크', 'N잡'], category: 'business' },
+    { groupName: '주식 추천', keywords: ['주식 추천', '주식 종목'], category: 'business' },
+    { groupName: '비트코인 전망', keywords: ['비트코인 전망', '비트코인 시세'], category: 'business' },
+    { groupName: '부동산 전망', keywords: ['부동산 전망', '아파트 시세'], category: 'business' },
+    { groupName: '적금 금리', keywords: ['적금 금리', '예금 금리'], category: 'business' },
+    { groupName: 'ETF 추천', keywords: ['ETF 추천', 'ETF 투자'], category: 'business' },
+  ],
+  // 생활/건강
+  [
+    { groupName: '다이어트 식단', keywords: ['다이어트 식단', '간헐적 단식'], category: 'health' },
+    { groupName: '홈트 운동', keywords: ['홈트 운동', '홈트레이닝 루틴'], category: 'health' },
+    { groupName: '피부관리 루틴', keywords: ['피부관리 루틴', '스킨케어 순서'], category: 'health' },
+    { groupName: '영양제 추천', keywords: ['영양제 추천', '비타민 추천'], category: 'health' },
+    { groupName: '수면 개선', keywords: ['수면 개선', '불면증 해결'], category: 'health' },
+  ],
+  // 여행/레저
+  [
+    { groupName: '제주도 맛집', keywords: ['제주도 맛집', '제주도 카페'], category: 'travel' },
+    { groupName: '일본 여행', keywords: ['일본 여행', '오사카 여행'], category: 'travel' },
+    { groupName: '호텔 추천', keywords: ['호텔 추천', '숙소 예약'], category: 'travel' },
+    { groupName: '항공권 특가', keywords: ['항공권 특가', '비행기표 싸게'], category: 'travel' },
+    { groupName: '캠핑장 추천', keywords: ['캠핑장 추천', '글램핑 추천'], category: 'travel' },
+  ],
+  // 엔터테인먼트/문화
+  [
+    { groupName: '넷플릭스 추천', keywords: ['넷플릭스 추천', '넷플릭스 신작'], category: 'entertainment' },
+    { groupName: '드라마 추천', keywords: ['드라마 추천', '요즘 드라마'], category: 'entertainment' },
+    { groupName: '영화 개봉작', keywords: ['영화 개봉작', '영화 추천'], category: 'entertainment' },
+    { groupName: '아이돌 컴백', keywords: ['아이돌 컴백', 'K-pop 신곡'], category: 'entertainment' },
+    { groupName: '유튜버 추천', keywords: ['유튜버 추천', '유튜브 채널'], category: 'entertainment' },
   ],
 ];
 
@@ -86,15 +84,9 @@ export async function collectNaverTrends(): Promise<KeywordCollectionResult> {
   try {
     const allKeywords: TrendKeyword[] = [];
 
-    // 첫 번째 키워드 그룹 세트 호출
-    const firstResult = await fetchDatalabTrends(clientId, clientSecret, KEYWORD_GROUPS);
-    if (firstResult) {
-      allKeywords.push(...firstResult);
-    }
-
-    // 추가 키워드 세트들 순차 호출 (API 제한 고려)
-    for (const keywordSet of ADDITIONAL_KEYWORD_SETS) {
-      await new Promise(resolve => setTimeout(resolve, 200)); // 딜레이
+    // 각 키워드 그룹 세트를 순차적으로 호출 (API 제한 고려)
+    for (const keywordSet of TRENDING_KEYWORD_GROUPS) {
+      await new Promise(resolve => setTimeout(resolve, 150)); // 딜레이
       const result = await fetchDatalabTrends(clientId, clientSecret, keywordSet);
       if (result) {
         allKeywords.push(...result);
@@ -184,14 +176,11 @@ async function fetchDatalabTrends(
       const latestRatio = result.data[result.data.length - 1]?.ratio || 0;
       const originalGroup = keywordGroups[index];
 
-      // 대표 키워드로 저장 (첫번째 키워드 사용)
-      const mainKeyword = originalGroup?.keywords[0] || result.title;
-      const classification = classifyKeyword(mainKeyword);
-
+      // groupName을 키워드로 사용 (구체적인 검색어)
       keywords.push({
-        keyword: mainKeyword,
+        keyword: result.title, // "ChatGPT 사용법", "아이폰16 후기" 등
         rank: index + 1,
-        category: originalGroup?.category || classification.category,
+        category: originalGroup?.category || classifyKeyword(result.title).category,
         trendScore: Math.round(latestRatio),
       });
     });
