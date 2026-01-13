@@ -21,7 +21,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 비밀번호 복잡성 검증
+  // 비밀번호 복잡성 검증 (서버 측 검증과 일치)
   const validatePassword = (password: string): { valid: boolean; error?: string } => {
     if (password.length < 8) {
       return { valid: false, error: '비밀번호는 최소 8자 이상이어야 합니다.' };
@@ -34,9 +34,6 @@ export default function SignupPage() {
     }
     if (!/[0-9]/.test(password)) {
       return { valid: false, error: '비밀번호에 숫자를 포함해주세요.' };
-    }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      return { valid: false, error: '비밀번호에 특수문자를 포함해주세요.' };
     }
     return { valid: true };
   };
