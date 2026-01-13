@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { disconnectBlog } from '@/lib/actions/blog';
+import { encrypt } from '@/lib/crypto';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -67,7 +68,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     const body = await request.json();
-    const { name, categories, is_active } = body;
+    const { name, categories, is_active, external_blog_id, access_token } = body;
 
     // 블로그 소유권 확인
     const { data: existingBlog, error: findError } = await supabase
@@ -96,6 +97,16 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     if (typeof is_active === 'boolean') {
       updateData.is_active = is_active;
+    }
+
+    // Blog ID (Blogger용)
+    if (typeof external_blog_id === 'string' && external_blog_id.trim()) {
+      updateData.external_blog_id = external_blog_id.trim();
+    }
+
+    // Access Token / API Key 업데이트 (암호화)
+    if (typeof access_token === 'string' && access_token.trim()) {
+      updateData.access_token = encrypt(access_token.trim());
     }
 
     const { data: updatedBlog, error: updateError } = await supabase

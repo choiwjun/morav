@@ -19,6 +19,7 @@ export async function GET() {
         categories: blog.categories || [],
         is_active: blog.is_active,
         created_at: blog.created_at,
+        external_blog_id: blog.external_blog_id || '',
       })) || [],
     });
   } catch (error) {

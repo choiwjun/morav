@@ -40,6 +40,7 @@ interface BlogResult {
     categories?: string[];
     is_active: boolean;
     created_at?: string;
+    external_blog_id?: string | null;
   }>;
   error?: string;
 }
@@ -541,7 +542,7 @@ export async function getUserBlogs(): Promise<BlogResult> {
 
     const { data: blogs, error: selectError } = await supabase
       .from('blogs')
-      .select('id, platform, blog_name, blog_url, categories, is_active, created_at')
+      .select('id, platform, blog_name, blog_url, categories, is_active, created_at, external_blog_id')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 

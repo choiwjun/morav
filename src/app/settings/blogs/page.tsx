@@ -18,6 +18,7 @@ interface Blog {
   categories: string[];
   is_active: boolean;
   created_at: string;
+  external_blog_id?: string;
 }
 
 interface BlogsResponse {
@@ -64,6 +65,8 @@ export default function BlogsPage() {
     name: '',
     categories: [] as string[],
     is_active: true,
+    external_blog_id: '',
+    access_token: '',
   });
   const [editLoading, setEditLoading] = useState(false);
 
@@ -121,6 +124,8 @@ export default function BlogsPage() {
       name: blog.name || blog.url,
       categories: blog.categories || [],
       is_active: blog.is_active,
+      external_blog_id: blog.external_blog_id || '',
+      access_token: '', // 보안상 기존 값 표시하지 않음
     });
     setEditModalOpen(true);
   };
@@ -130,16 +135,29 @@ export default function BlogsPage() {
 
     setEditLoading(true);
     try {
+      // 업데이트할 데이터 구성 (빈 값은 제외)
+      const updateData: Record<string, unknown> = {
+        name: editFormData.name,
+        categories: editFormData.categories,
+        is_active: editFormData.is_active,
+      };
+
+      // Blog ID가 입력된 경우만 포함
+      if (editFormData.external_blog_id.trim()) {
+        updateData.external_blog_id = editFormData.external_blog_id.trim();
+      }
+
+      // API Key/Token이 입력된 경우만 포함
+      if (editFormData.access_token.trim()) {
+        updateData.access_token = editFormData.access_token.trim();
+      }
+
       const response = await fetch(`/api/user/blogs/${editingBlog.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name: editFormData.name,
-          categories: editFormData.categories,
-          is_active: editFormData.is_active,
-        }),
+        body: JSON.stringify(updateData),
       });
 
       const data = await response.json();
@@ -452,6 +470,43 @@ export default function BlogsPage() {
                     <span className="text-sm text-[#0c111d]">비활성화</span>
                   </label>
                 </div>
+              </div>
+
+              {/* Blog ID (Blogger 전용) */}
+              {editingBlog.platform === 'blogger' && (
+                <div>
+                  <label className="block text-sm font-medium text-[#0c111d] mb-2">
+                    Blog ID
+                  </label>
+                  <Input
+                    value={editFormData.external_blog_id}
+                    onChange={(e) => setEditFormData({ ...editFormData, external_blog_id: e.target.value })}
+                    placeholder="Blogger Blog ID (예: 1234567890123456789)"
+                    className="border-[#cdd6ea] focus:border-[#4562a1] focus:ring-[#4562a1]"
+                  />
+                  <p className="mt-1 text-xs text-[#4562a1]">
+                    Blogger 대시보드 URL에서 확인: blogger.com/blog/posts/<strong>숫자ID</strong>
+                  </p>
+                </div>
+              )}
+
+              {/* API Key / Access Token */}
+              <div>
+                <label className="block text-sm font-medium text-[#0c111d] mb-2">
+                  {editingBlog.platform === 'tistory' ? 'Access Token' :
+                   editingBlog.platform === 'blogger' ? 'API Key' :
+                   'Application Password'}
+                </label>
+                <Input
+                  type="password"
+                  value={editFormData.access_token}
+                  onChange={(e) => setEditFormData({ ...editFormData, access_token: e.target.value })}
+                  placeholder="변경하려면 새 값을 입력하세요"
+                  className="border-[#cdd6ea] focus:border-[#4562a1] focus:ring-[#4562a1]"
+                />
+                <p className="mt-1 text-xs text-[#4562a1]">
+                  비워두면 기존 값이 유지됩니다
+                </p>
               </div>
 
               {/* 카테고리 선택 */}
