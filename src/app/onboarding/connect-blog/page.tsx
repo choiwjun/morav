@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -15,16 +16,37 @@ interface ConnectedBlog {
 }
 
 export default function ConnectBlogPage() {
+  const searchParams = useSearchParams();
   const [selectedPlatform, setSelectedPlatform] = useState<BlogPlatform>(null);
   const [connectedBlogs, setConnectedBlogs] = useState<ConnectedBlog[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // 페이지 로드 시 연결된 블로그 목록 가져오기
+  // 페이지 로드 시 연결된 블로그 목록 가져오기 및 OAuth 결과 처리
   useEffect(() => {
     fetchConnectedBlogs();
-  }, []);
+
+    // OAuth 콜백 결과 처리
+    const successParam = searchParams.get('success');
+    const errorParam = searchParams.get('error');
+
+    if (successParam === 'blogger') {
+      setSuccess('구글 블로거가 연결되었습니다.');
+      // URL에서 파라미터 제거
+      window.history.replaceState({}, '', '/onboarding/connect-blog');
+      setTimeout(() => setSuccess(''), 5000);
+    } else if (successParam === 'tistory') {
+      setSuccess('티스토리가 연결되었습니다.');
+      window.history.replaceState({}, '', '/onboarding/connect-blog');
+      setTimeout(() => setSuccess(''), 5000);
+    }
+
+    if (errorParam) {
+      setError(decodeURIComponent(errorParam));
+      window.history.replaceState({}, '', '/onboarding/connect-blog');
+    }
+  }, [searchParams]);
 
   const fetchConnectedBlogs = async () => {
     try {
@@ -58,7 +80,7 @@ export default function ConnectBlogPage() {
     {
       id: 'blogger',
       name: '구글 블로거',
-      description: 'Google Blogger API Key로 연결',
+      description: 'Google 계정으로 연결',
       icon: '🔵',
       color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
     },
@@ -117,49 +139,26 @@ export default function ConnectBlogPage() {
     }
   };
 
-  // 구글 블로거 연결
-  const handleConnectBlogger = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // 구글 블로거 연결 (OAuth)
+  const handleConnectBlogger = async () => {
     setLoading(true);
     setError('');
     setSuccess('');
 
-    const form = e.target as HTMLFormElement;
-    const blogName = form.blogName.value;
-    const blogUrl = form.blogUrl.value;
-    const blogId = form.blogId.value;
-    const apiKey = form.apiKey.value;
-
     try {
-      const response = await fetch('/api/blog/blogger/connect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ blogName, blogUrl, blogId, apiKey }),
-      });
-
+      const response = await fetch('/api/blog/blogger/oauth');
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || '구글 블로거 연결에 실패했습니다.');
       }
 
-      setSuccess('구글 블로거가 연결되었습니다.');
-      setConnectedBlogs([
-        ...connectedBlogs,
-        {
-          id: data.blog?.id || Date.now().toString(),
-          platform: 'blogger',
-          blogName: data.blog?.blog_name || blogName,
-          blogUrl: data.blog?.blog_url || blogUrl,
-          connectedAt: new Date().toISOString(),
-        },
-      ]);
-      setSelectedPlatform(null);
-      form.reset();
-      setTimeout(() => setSuccess(''), 3000);
+      // OAuth URL로 리다이렉트
+      if (data.url) {
+        window.location.href = data.url;
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '구글 블로거 연결에 실패했습니다.');
-    } finally {
       setLoading(false);
     }
   };
@@ -352,64 +351,33 @@ export default function ConnectBlogPage() {
               </div>
             )}
 
-            {/* 구글 블로거 연결 폼 */}
+            {/* 구글 블로거 연결 (OAuth) */}
             {selectedPlatform === 'blogger' && (
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-8">
                 <div className="text-6xl mb-4 text-center">🔵</div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">구글 블로거 연결</h3>
                 <p className="text-gray-600 mb-6 text-center">
-                  Google Cloud Console에서 발급받은 API Key와 Blog ID를 입력해주세요.
+                  Google 계정으로 로그인하여 블로거에 글을 발행할 수 있는 권한을 부여해주세요.
                 </p>
 
-                <form onSubmit={handleConnectBlogger} className="space-y-6">
-                  <div>
-                    <label htmlFor="blogName" className="block text-sm font-medium mb-2">
-                      블로그 이름
-                    </label>
-                    <Input id="blogName" name="blogName" placeholder="내 구글 블로그" required />
+                <div className="space-y-6">
+                  <div className="bg-white rounded-lg p-4 border border-blue-200">
+                    <h4 className="font-medium text-gray-900 mb-2">연결 과정</h4>
+                    <ol className="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                      <li>Google 계정으로 로그인</li>
+                      <li>Blogger 접근 권한 허용</li>
+                      <li>자동으로 블로그 정보 연동</li>
+                    </ol>
                   </div>
 
-                  <div>
-                    <label htmlFor="blogUrl" className="block text-sm font-medium mb-2">
-                      블로그 URL
-                    </label>
-                    <Input id="blogUrl" name="blogUrl" placeholder="yourblog.blogspot.com" required />
-                    <p className="text-xs text-gray-500 mt-1">
-                      실제 블로그 주소 (예: yourblog.blogspot.com)
-                    </p>
-                  </div>
-
-                  <div>
-                    <label htmlFor="blogId" className="block text-sm font-medium mb-2">
-                      Blog ID
-                    </label>
-                    <Input id="blogId" name="blogId" placeholder="1234567890123456789" required />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Blogger 대시보드 URL에서 확인: blogger.com/blog/posts/<strong>숫자ID</strong>
-                    </p>
-                  </div>
-
-                  <div>
-                    <label htmlFor="apiKey" className="block text-sm font-medium mb-2">
-                      API Key
-                    </label>
-                    <Input id="apiKey" name="apiKey" type="password" placeholder="Google API Key" required />
-                    <p className="text-xs text-gray-500 mt-2">
-                      <a
-                        href="https://console.cloud.google.com/apis/credentials"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        Google Cloud Console
-                      </a>
-                      에서 Blogger API를 활성화하고 API Key를 발급받으세요.
-                    </p>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <Button type="submit" disabled={loading} size="lg" className="min-w-[200px]">
-                      {loading ? '연결 중...' : '연결하기'}
+                  <div className="flex gap-4 justify-center">
+                    <Button
+                      onClick={handleConnectBlogger}
+                      disabled={loading}
+                      size="lg"
+                      className="min-w-[200px] bg-blue-600 hover:bg-blue-700"
+                    >
+                      {loading ? '연결 중...' : 'Google 계정으로 연결'}
                     </Button>
                     <Button
                       type="button"
@@ -420,7 +388,7 @@ export default function ConnectBlogPage() {
                       취소
                     </Button>
                   </div>
-                </form>
+                </div>
               </div>
             )}
 

@@ -485,42 +485,51 @@ export default function BlogsPage() {
                 </div>
               </div>
 
-              {/* Blog ID (Blogger 전용) */}
+              {/* Blogger: OAuth 재연결 안내 */}
               {editingBlog.platform === 'blogger' && (
-                <div>
-                  <label className="block text-sm font-medium text-[#0c111d] mb-2">
-                    Blog ID
-                  </label>
-                  <Input
-                    value={editFormData.external_blog_id}
-                    onChange={(e) => setEditFormData({ ...editFormData, external_blog_id: e.target.value })}
-                    placeholder="Blogger Blog ID (예: 1234567890123456789)"
-                    className="border-[#cdd6ea] focus:border-[#4562a1] focus:ring-[#4562a1]"
-                  />
-                  <p className="mt-1 text-xs text-[#4562a1]">
-                    Blogger 대시보드 URL에서 확인: blogger.com/blog/posts/<strong>숫자ID</strong>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-700 mb-3">
+                    구글 블로거는 OAuth 인증을 사용합니다. 토큰이 만료되거나 연결에 문제가 있으면 다시 연결해주세요.
                   </p>
+                  <Button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const response = await fetch('/api/blog/blogger/oauth');
+                        const data = await response.json();
+                        if (data.url) {
+                          window.location.href = data.url;
+                        }
+                      } catch (err) {
+                        toast.error('Google 연결에 실패했습니다.');
+                        console.error(err);
+                      }
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Google 계정으로 다시 연결
+                  </Button>
                 </div>
               )}
 
-              {/* API Key / Access Token */}
-              <div>
-                <label className="block text-sm font-medium text-[#0c111d] mb-2">
-                  {editingBlog.platform === 'tistory' ? 'Access Token' :
-                   editingBlog.platform === 'blogger' ? 'API Key' :
-                   'Application Password'}
-                </label>
-                <Input
-                  type="password"
-                  value={editFormData.access_token}
-                  onChange={(e) => setEditFormData({ ...editFormData, access_token: e.target.value })}
-                  placeholder="변경하려면 새 값을 입력하세요"
-                  className="border-[#cdd6ea] focus:border-[#4562a1] focus:ring-[#4562a1]"
-                />
-                <p className="mt-1 text-xs text-[#4562a1]">
-                  비워두면 기존 값이 유지됩니다
-                </p>
-              </div>
+              {/* Access Token (Tistory, WordPress) */}
+              {editingBlog.platform !== 'blogger' && (
+                <div>
+                  <label className="block text-sm font-medium text-[#0c111d] mb-2">
+                    {editingBlog.platform === 'tistory' ? 'Access Token' : 'Application Password'}
+                  </label>
+                  <Input
+                    type="password"
+                    value={editFormData.access_token}
+                    onChange={(e) => setEditFormData({ ...editFormData, access_token: e.target.value })}
+                    placeholder="변경하려면 새 값을 입력하세요"
+                    className="border-[#cdd6ea] focus:border-[#4562a1] focus:ring-[#4562a1]"
+                  />
+                  <p className="mt-1 text-xs text-[#4562a1]">
+                    비워두면 기존 값이 유지됩니다
+                  </p>
+                </div>
+              )}
 
               {/* 카테고리 선택 */}
               <div>

@@ -349,7 +349,8 @@ export async function handleBloggerCallback(code: string, state?: string): Promi
 
     const blog = blogs[0];
     const blogName = (blog.name || '').slice(0, MAX_LENGTHS.BLOG_NAME);
-    const blogUrl = (blog.url || '').slice(0, MAX_LENGTHS.URL);
+    const blogUrl = (blog.url || '').replace(/^https?:\/\//, '').replace(/\/$/, '').slice(0, MAX_LENGTHS.URL);
+    const externalBlogId = blog.id; // Blogger API의 블로그 ID
     const encryptedAccessToken = encrypt(accessToken);
     const encryptedRefreshToken = refreshToken ? encrypt(refreshToken) : null;
     const tokenExpiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
@@ -363,6 +364,7 @@ export async function handleBloggerCallback(code: string, state?: string): Promi
           platform: 'blogger',
           blog_name: blogName,
           blog_url: blogUrl,
+          external_blog_id: externalBlogId,
           access_token: encryptedAccessToken,
           refresh_token: encryptedRefreshToken,
           token_expires_at: tokenExpiresAt,
