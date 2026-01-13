@@ -3,8 +3,9 @@
 import { TrendKeyword, KeywordCollectionResult } from './types';
 import { classifyKeyword } from './classifier';
 
-const GOOGLE_TRENDS_URL = 'https://trends.google.co.kr/trends/trendingsearches/daily/rss?geo=KR';
-const REQUEST_TIMEOUT = 10000; // 10초
+// 구글 트렌드 RSS 피드 URL (한국)
+const GOOGLE_TRENDS_RSS_URL = 'https://trends.google.com/trending/rss?geo=KR';
+const REQUEST_TIMEOUT = 15000; // 15초
 
 /**
  * 구글 트렌드 키워드 수집
@@ -18,7 +19,7 @@ export async function collectGoogleTrends(): Promise<KeywordCollectionResult> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
-    const response = await fetch(GOOGLE_TRENDS_URL, {
+    const response = await fetch(GOOGLE_TRENDS_RSS_URL, {
       method: 'GET',
       headers: {
         'User-Agent':

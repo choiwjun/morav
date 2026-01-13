@@ -165,12 +165,13 @@ async function collectFromNaverSearchAPI(
 
   const formatDate = (date: Date) => date.toISOString().split('T')[0];
 
-  // 인기 검색 키워드 그룹 (다양한 카테고리)
+  // 인기 검색 키워드 그룹 (다양한 카테고리) - 최대 5개 그룹까지 지원
   const keywordGroups = [
-    { groupName: 'IT/기술', keywords: ['AI', '챗GPT', '아이폰', '갤럭시', '테슬라'] },
-    { groupName: '경제/금융', keywords: ['주식', '부동산', '비트코인', '금리', '환율'] },
-    { groupName: '생활/건강', keywords: ['다이어트', '운동', '건강', '맛집', '여행'] },
-    { groupName: '엔터테인먼트', keywords: ['넷플릭스', '유튜브', '드라마', '영화', 'K-pop'] },
+    { groupName: 'AI', keywords: ['AI', '인공지능', 'ChatGPT', '챗GPT'] },
+    { groupName: '스마트폰', keywords: ['아이폰', '갤럭시', '삼성', '애플'] },
+    { groupName: '투자', keywords: ['주식', '비트코인', '부동산', '금'] },
+    { groupName: '건강', keywords: ['다이어트', '운동', '헬스', '요가'] },
+    { groupName: '여행', keywords: ['여행', '호텔', '항공권', '해외여행'] },
   ];
 
   const controller = new AbortController();
