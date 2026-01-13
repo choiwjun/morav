@@ -286,7 +286,15 @@ export async function handleBloggerCallback(code: string, state?: string): Promi
     const storedState = user.user_metadata?.oauth_state;
     const stateExpires = user.user_metadata?.oauth_state_expires;
 
+    console.log('=== Blogger OAuth Callback Debug ===');
+    console.log('Received state:', state);
+    console.log('Stored state:', storedState);
+    console.log('State expires:', stateExpires, 'Current:', Date.now());
+    console.log('User ID:', user.id);
+    console.log('====================================');
+
     if (!state || !storedState || state !== storedState) {
+      console.error('Blogger OAuth state mismatch - received:', state, 'stored:', storedState);
       return { success: false, error: '잘못된 인증 요청입니다. 다시 시도해주세요.' };
     }
 

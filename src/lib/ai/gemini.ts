@@ -26,6 +26,7 @@ function buildPrompt(params: ContentGenerationParams): string {
     tone = 'professional',
     minLength = MIN_CONTENT_LENGTH,
     language = 'ko',
+    imageStyle = 'photo',
   } = params;
 
   const toneMap = {
@@ -40,13 +41,21 @@ function buildPrompt(params: ContentGenerationParams): string {
     en: 'English',
   };
 
-  const systemPrompt = '당신은 구글 애드센스 심사 통과 기준에 맞는 고품질 블로그 콘텐츠를 작성하는 전문 작가입니다. HTML 형식으로 작성하며 항상 JSON 형식으로 응답합니다.\n\n';
+  const imageStyleMap = {
+    photo: '사진',
+    illustration: '일러스트',
+    infographic: '인포그래픽',
+    minimal: '미니멀',
+  };
+
+  const systemPrompt = '당신은 구글 애드센스 승인 기준을 완벽히 충족하는 고품질 블로그 콘텐츠를 작성하는 전문 SEO 라이터입니다. HTML 형식으로 작성하며 항상 JSON 형식으로 응답합니다.\n\n';
 
   return systemPrompt + CONTENT_PROMPT_TEMPLATE.replace('{{keyword}}', keyword)
     .replace('{{category}}', category)
     .replace('{{tone}}', toneMap[tone])
     .replace('{{minLength}}', minLength.toString())
-    .replace('{{language}}', languageMap[language]);
+    .replace('{{language}}', languageMap[language])
+    .replace('{{imageStyle}}', imageStyleMap[imageStyle]);
 }
 
 /**

@@ -25,6 +25,7 @@ function buildPrompt(params: ContentGenerationParams): string {
     tone = 'professional',
     minLength = MIN_CONTENT_LENGTH,
     language = 'ko',
+    imageStyle = 'photo',
   } = params;
 
   const toneMap = {
@@ -39,11 +40,19 @@ function buildPrompt(params: ContentGenerationParams): string {
     en: 'English',
   };
 
+  const imageStyleMap = {
+    photo: '사진',
+    illustration: '일러스트',
+    infographic: '인포그래픽',
+    minimal: '미니멀',
+  };
+
   return CONTENT_PROMPT_TEMPLATE.replace('{{keyword}}', keyword)
     .replace('{{category}}', category)
     .replace('{{tone}}', toneMap[tone])
     .replace('{{minLength}}', minLength.toString())
-    .replace('{{language}}', languageMap[language]);
+    .replace('{{language}}', languageMap[language])
+    .replace('{{imageStyle}}', imageStyleMap[imageStyle]);
 }
 
 /**
@@ -110,7 +119,7 @@ export async function generateContentWithClaude(
         max_tokens: maxTokens,
         temperature,
         system:
-          '당신은 구글 애드센스 심사 통과 기준에 맞는 고품질 블로그 콘텐츠를 작성하는 전문 작가입니다. HTML 형식으로 작성하며 항상 JSON 형식으로 응답합니다.',
+          '당신은 구글 애드센스 승인 기준을 완벽히 충족하는 고품질 블로그 콘텐츠를 작성하는 전문 SEO 라이터입니다. HTML 형식으로 작성하며 항상 JSON 형식으로 응답합니다. 이미지 프롬프트를 포함하여 시각적으로 풍부한 콘텐츠를 생성합니다.',
         messages: [
           {
             role: 'user',

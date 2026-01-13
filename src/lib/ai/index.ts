@@ -131,7 +131,7 @@ async function generateContentWithGrok(
           {
             role: 'system',
             content:
-              '당신은 구글 애드센스 심사 통과 기준에 맞는 고품질 블로그 콘텐츠를 작성하는 전문 작가입니다. HTML 형식으로 작성하며 항상 JSON 형식으로 응답합니다.',
+              '당신은 구글 애드센스 승인 기준을 완벽히 충족하는 고품질 블로그 콘텐츠를 작성하는 전문 SEO 라이터입니다. HTML 형식으로 작성하며 항상 JSON 형식으로 응답합니다. 이미지 프롬프트를 포함하여 시각적으로 풍부한 콘텐츠를 생성합니다.',
           },
           {
             role: 'user',
@@ -210,7 +210,7 @@ async function generateContentWithGrok(
 }
 
 function buildPromptForGrok(params: ContentGenerationParams): string {
-  const { keyword, category = '일반', tone = 'professional', minLength = 5000, language = 'ko' } = params;
+  const { keyword, category = '일반', tone = 'professional', minLength = 5000, language = 'ko', imageStyle = 'photo' } = params;
 
   const toneMap = {
     professional: '전문적이고 신뢰감 있는',
@@ -224,54 +224,65 @@ function buildPromptForGrok(params: ContentGenerationParams): string {
     en: 'English',
   };
 
+  const imageStyleMap = {
+    photo: '사진',
+    illustration: '일러스트',
+    infographic: '인포그래픽',
+    minimal: '미니멀',
+  };
+
   return `
-당신은 구글 애드센스 심사 통과 기준에 맞는 고품질 블로그 콘텐츠를 작성하는 전문 작가입니다.
+당신은 구글 애드센스 승인 기준을 완벽히 충족하는 고품질 블로그 콘텐츠를 작성하는 전문 SEO 라이터입니다.
 
-## 요구사항
-- 키워드: ${keyword}
-- 카테고리: ${category}
-- 톤: ${toneMap[tone]}
-- 최소 글자 수: ${minLength}자
-- 언어: ${languageMap[language]}
+## 입력 변수
+- keyword: ${keyword} (타겟 키워드)
+- category: ${category} (블로그 카테고리)
+- tone: ${toneMap[tone]} (친근함/전문적/유머러스/정보전달)
+- minLength: ${minLength} (최소 글자 수, 권장 2000-3000자)
+- language: ${languageMap[language]} (ko/en/ja)
+- imageStyle: ${imageStyleMap[imageStyle]} (사진/일러스트/인포그래픽/미니멀)
 
-## 작성 지침
+## 핵심 미션
+독자에게 실질적 가치를 제공하고, 검색 의도를 완벽히 충족하며, 자연스럽고 신뢰할 수 있는 콘텐츠를 작성하세요.
 
-### 구조 및 형식
-1. HTML 형식으로 작성 (마크다운 사용 금지)
-2. 소개는 <p> 태그로 시작하며 부제목 없이 자연스럽게 시작
-3. 주요 섹션에는 <h2>, 하위 섹션에는 <h3>, 그 하위에는 <h4> 태그 사용
-4. 소제목(h2, h3, h4)은 최소 7개 이상 포함
-5. 소제목에 섹션 번호를 포함하지 않음
-6. 단락에는 <p> 태그, 목록에는 <ul>과 <li> 태그 사용
-7. SEO 향상을 위해 중요 키워드에 <b>, <u> 태그 적절히 사용
+## 콘텐츠 구조
+1. 제목 - <h1> 태그, SEO 최적화된 60자 이내 제목
+2. 대표 이미지 - 글 도입부에 배치, [IMAGE_PROMPT] 태그로 명시
+3. 도입부 - <p> 태그로 2-3개 단락, 첫 100단어 내 키워드 포함
+4. 본문 - <h2> 주요 섹션 5-8개, 각 섹션마다 이미지 삽입
+5. 결론 - <p> 태그로 2-3개 단락, 키워드 재언급
 
-### 콘텐츠 품질
-1. 각 섹션별로 최소 5000자 이상의 상세하고 포괄적인 설명 작성
-2. 실제 사람이 쓴 것처럼 자연스럽고 논리적인 흐름 유지
-3. 자세한 스타일과 학술적인 어조 사용, 가끔 유머 포함
-4. 독자에게 실질적인 가치를 제공하는 유익한 정보 포함
-5. 명확한 도입부, 본문, 결론 구조로 논리적 진행
-
-### SEO 최적화
-1. 제목은 SEO에 최적화되고 클릭을 유도할 수 있도록 작성
-2. 키워드를 서론에 3번, 결론에 3번 자연스럽게 포함
-3. 키워드를 과도하게 반복하지 않고 자연스럽게 통합
-4. 각 소제목 내용은 500자가 넘지 않도록 간결하게
-
-### 금지 사항
-1. 코드블록 표시 금지 (백틱, html 등)
-2. 특수 기호 사용 금지 (*** 등)
-3. 콜론(:) 사용 금지
-4. 마크다운 문법 사용 금지
+## 이미지 생성 가이드
+- 총 이미지 수 5-8개 (대표 이미지 포함)
+- 각 <h2> 섹션마다 관련 이미지 1개씩 삽입
+- 이미지 HTML 형식:
+<div class="article-image">
+  <img src="image-placeholder-[번호].jpg" alt="[키워드 포함 30-50자 설명]" />
+  <p class="caption">[이미지 설명]</p>
+</div>
 
 ## 출력 형식
 다음 JSON 형식으로 응답해주세요:
 {
-  "title": "SEO 최적화된 블로그 제목",
-  "content": "HTML 형식의 본문 (<p>, <h2>, <h3>, <h4>, <ul>, <li>, <b>, <u> 태그 사용)",
+  "title": "SEO 최적화된 블로그 제목 (60자 이내)",
+  "content": "순수 HTML 본문 (h1 제목 포함, 이미지 placeholder 포함)",
   "summary": "2-3문장의 요약",
-  "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"]
+  "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
+  "imagePrompts": [
+    {
+      "section": "섹션명",
+      "prompt": "이미지 생성용 영문 프롬프트",
+      "alt": "SEO 최적화된 한글 alt 텍스트"
+    }
+  ]
 }
+
+## 절대 금지 사항
+1. 마크다운 문법 사용 금지
+2. 코드블록 표시 금지
+3. AI 티 나는 표현 금지 ("~에 대해 알아보겠습니다" 등)
+4. 콜론(:) 사용 금지
+5. 이미지 없는 긴 텍스트 블록 (300자 이상) 금지
 `;
 }
 
