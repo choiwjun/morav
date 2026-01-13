@@ -148,25 +148,14 @@ async function collectGoogleTrendsAlternative(): Promise<KeywordCollectionResult
     }
   }
 
-  // API 키가 없거나 실패한 경우 mock 데이터 사용
-  try {
-    const mockKeywords = await getMockGoogleKeywords();
-
-    return {
-      success: true,
-      keywords: mockKeywords,
-      source: 'google',
-      collectedAt,
-    };
-  } catch (error) {
-    console.error('Google alternative collection error:', error);
-    return {
-      success: false,
-      error: '구글 트렌드 키워드 수집에 실패했습니다.',
-      source: 'google',
-      collectedAt,
-    };
-  }
+  // API 키가 없거나 실패한 경우 빈 결과 반환 (mock 데이터 사용 안함)
+  console.warn('구글 트렌드 수집 실패: RSS 피드와 SerpAPI 모두 실패했습니다.');
+  return {
+    success: false,
+    error: '구글 트렌드 키워드 수집에 실패했습니다. SERPAPI_KEY를 확인하세요.',
+    source: 'google',
+    collectedAt,
+  };
 }
 
 /**
@@ -223,35 +212,3 @@ function calculateTrendScore(rank: number): number {
   return Math.max(0, 101 - rank);
 }
 
-/**
- * 개발/테스트용 mock 키워드
- */
-async function getMockGoogleKeywords(): Promise<TrendKeyword[]> {
-  const baseKeywords = [
-    'ChatGPT 활용법',
-    '넷플릭스 신작',
-    '비트코인 전망',
-    '아이폰 16',
-    '테슬라 주가',
-    '월드컵 일정',
-    '올림픽 결과',
-    '유튜브 인기',
-    '인스타 트렌드',
-    '틱톡 챌린지',
-    '갤럭시 S25',
-    'AI 그림',
-    '메타버스 뉴스',
-    'NFT 시장',
-    '전기차 보조금',
-  ];
-
-  return baseKeywords.map((keyword, index) => {
-    const classification = classifyKeyword(keyword);
-    return {
-      keyword,
-      rank: index + 1,
-      category: classification.category,
-      trendScore: calculateTrendScore(index + 1),
-    };
-  });
-}

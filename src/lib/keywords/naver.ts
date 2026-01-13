@@ -135,25 +135,14 @@ async function collectNaverTrendsAlternative(): Promise<KeywordCollectionResult>
     }
   }
 
-  // API 키가 없거나 실패한 경우 mock 데이터 사용
-  try {
-    const mockKeywords = await getMockNaverKeywords();
-
-    return {
-      success: true,
-      keywords: mockKeywords,
-      source: 'naver',
-      collectedAt,
-    };
-  } catch (error) {
-    console.error('Naver alternative collection error:', error);
-    return {
-      success: false,
-      error: '네이버 트렌드 키워드 수집에 실패했습니다.',
-      source: 'naver',
-      collectedAt,
-    };
-  }
+  // API 키가 없거나 실패한 경우 빈 결과 반환 (mock 데이터 사용 안함)
+  console.warn('네이버 트렌드 수집 실패: API 키가 없거나 API 호출에 실패했습니다.');
+  return {
+    success: false,
+    error: '네이버 트렌드 키워드 수집에 실패했습니다. NAVER_CLIENT_ID와 NAVER_CLIENT_SECRET을 확인하세요.',
+    source: 'naver',
+    collectedAt,
+  };
 }
 
 /**
@@ -231,37 +220,3 @@ function calculateTrendScore(rank: number): number {
   return Math.max(0, 101 - rank);
 }
 
-/**
- * 개발/테스트용 mock 키워드
- * 실제 운영에서는 네이버 API를 통해 수집
- */
-async function getMockNaverKeywords(): Promise<TrendKeyword[]> {
-  // 현재 시간 기반으로 변화하는 mock 데이터
-  const baseKeywords = [
-    '오늘 날씨',
-    '주식 시세',
-    '부동산 전망',
-    '건강검진 비용',
-    '여행지 추천',
-    '맛집 추천',
-    '영화 순위',
-    '드라마 추천',
-    '코인 시세',
-    '취업 정보',
-    'AI 뉴스',
-    '스마트폰 추천',
-    '다이어트 방법',
-    '운동 루틴',
-    '영어 공부',
-  ];
-
-  return baseKeywords.map((keyword, index) => {
-    const classification = classifyKeyword(keyword);
-    return {
-      keyword,
-      rank: index + 1,
-      category: classification.category,
-      trendScore: calculateTrendScore(index + 1),
-    };
-  });
-}
