@@ -15,6 +15,7 @@ import type {
 import { generateContentWithOpenAI, generateImageWithOpenAI } from './openai';
 import { generateContentWithClaude } from './claude';
 import { generateContentWithGemini, generateImageWithGemini } from './gemini';
+import { searchUnsplashImages, extractImageSearchQuery } from '@/lib/image/unsplash';
 
 // Re-export types using export type for 'use server' compatibility
 export type { AIProvider, ContentGenerationParams, ContentGenerationResult, ImageGenerationParams, ImageGenerationResult, AIGeneratorConfig } from './types';
@@ -325,6 +326,7 @@ function parseGrokResponse(responseText: string): GeneratedContent | null {
 
 /**
  * 콘텐츠 내 이미지 placeholder를 실제 이미지로 교체
+ * 웹 이미지 수집을 우선 사용하고, 실패시 AI 이미지 생성으로 폴백
  */
 export async function generateImagesAndReplacePlaceholders(
   content: string,
@@ -343,52 +345,9 @@ export async function generateImagesAndReplacePlaceholders(
   let generatedImages = 0;
   let failedImages = 0;
 
-  // 이미지 생성을 지원하는 프로바이더 확인 (openai 또는 gemini)
-  // 다른 프로바이더 사용 시 openai로 폴백하되, API 키가 있는지 확인
-  let imageProvider: AIProvider = provider;
-  if (provider !== 'openai' && provider !== 'gemini') {
-    // openai 또는 gemini API 키가 있는지 확인
-    const openaiKey = await getUserApiKey('openai');
-    const geminiKey = await getUserApiKey('gemini');
-
-    if (openaiKey) {
-      imageProvider = 'openai';
-    } else if (geminiKey) {
-      imageProvider = 'gemini';
-    } else {
-      // 이미지 생성 가능한 API 키가 없음
-      return {
-        success: false,
-        content,
-        generatedImages: 0,
-        failedImages: imagePrompts.length,
-        errors: ['이미지 생성을 위한 OpenAI 또는 Gemini API 키가 필요합니다.'],
-      };
-    }
-  }
-
-  console.log(`=== Image Generation Debug ===`);
-  console.log(`Provider: ${provider}, Image Provider: ${imageProvider}`);
+  console.log(`=== Image Replacement Debug ===`);
+  console.log(`Provider: ${provider}`);
   console.log(`Image Prompts count: ${imagePrompts.length}`);
-
-  // 콘텐츠에서 모든 placeholder 패턴 찾기 (다양한 형식 지원)
-  // 패턴: image-placeholder-숫자.jpg, image-placeholder-[숫자].jpg 등
-  const placeholderPatterns = [
-    /image-placeholder-(\d+)\.jpg/g,
-    /image-placeholder-\[(\d+)\]\.jpg/g,
-    /placeholder-image-(\d+)\.jpg/g,
-    /img-placeholder-(\d+)\.jpg/g,
-  ];
-
-  let allPlaceholders: string[] = [];
-  for (const pattern of placeholderPatterns) {
-    const matches = updatedContent.match(pattern) || [];
-    allPlaceholders = [...allPlaceholders, ...matches];
-  }
-  console.log(`Found placeholders in content: ${JSON.stringify(allPlaceholders)}`);
-
-  // 콘텐츠 앞부분 로그 (디버깅용)
-  console.log(`Content preview (first 1000 chars): ${updatedContent.substring(0, 1000)}`);
 
   // 콘텐츠에서 모든 img 태그의 src와 alt 속성 찾기
   const imgTagPattern = /<img[^>]*src=["']([^"']+)["'][^>]*>/gi;
@@ -403,7 +362,6 @@ export async function generateImagesAndReplacePlaceholders(
     allImgTags.push({ fullMatch, src, alt });
   }
   console.log(`Found ${allImgTags.length} img tags in content`);
-  console.log(`Img tags: ${JSON.stringify(allImgTags.map(t => ({ src: t.src, alt: t.alt })))}`);
 
   // 교체가 필요한 이미지만 필터링 (http/https/data: 가 아닌 것)
   const imagesToReplace = allImgTags.filter(
@@ -411,34 +369,71 @@ export async function generateImagesAndReplacePlaceholders(
   );
   console.log(`Images needing replacement: ${imagesToReplace.length}`);
 
-  for (let i = 0; i < imagesToReplace.length; i++) {
+  // 최대 3개만 처리 (속도 최적화)
+  const maxImages = Math.min(imagesToReplace.length, 3);
+
+  for (let i = 0; i < maxImages; i++) {
     const imgTag = imagesToReplace[i];
     const imagePrompt = imagePrompts[i]; // 순서대로 매칭
 
-    // 이미지 프롬프트 구성: imagePrompts가 있으면 사용, 없으면 alt 텍스트 활용
-    let finalPrompt: string;
-    if (imagePrompt?.prompt && imagePrompt.prompt.length > 10) {
-      // imagePrompt가 있으면 alt 텍스트를 추가해서 더 구체적으로
-      finalPrompt = imgTag.alt
-        ? `${imagePrompt.prompt}. Context: ${imgTag.alt}`
-        : imagePrompt.prompt;
-    } else if (imgTag.alt && imgTag.alt.length > 5) {
-      // imagePrompt가 없으면 alt 텍스트로 프롬프트 생성
-      finalPrompt = `High quality, professional photo of: ${imgTag.alt}. Clean, modern, visually appealing.`;
-    } else {
-      // 둘 다 없으면 스킵
-      console.log(`Skipping image ${i}: no prompt or alt text available`);
-      continue;
-    }
-
-    console.log(`Image ${i}: finalPrompt="${finalPrompt.substring(0, 80)}...", currentSrc="${imgTag.src}"`);
+    // 검색 쿼리 생성
+    const searchQuery = extractImageSearchQuery(
+      imagePrompt?.prompt || '',
+      imagePrompt?.section,
+      imgTag.alt
+    );
+    console.log(`Image ${i + 1}: searchQuery="${searchQuery}", alt="${imgTag.alt}"`);
 
     try {
-      // 이미지 생성
-      console.log(`Generating image ${i + 1} with ${imageProvider}...`);
+      // 1. 먼저 웹 이미지 검색 시도 (Unsplash/Pexels/Picsum)
+      console.log(`Searching web images for: ${searchQuery}`);
+      const webImageResult = await searchUnsplashImages(searchQuery, 1);
+
+      if (webImageResult.success && webImageResult.images && webImageResult.images.length > 0) {
+        const webImage = webImageResult.images[0];
+        // img 태그의 src를 웹 이미지 URL로 교체
+        const newImgTag = imgTag.fullMatch.replace(imgTag.src, webImage.url);
+        updatedContent = updatedContent.replace(imgTag.fullMatch, newImgTag);
+        generatedImages++;
+        console.log(`Image ${i + 1} replaced with web image: ${webImage.url.substring(0, 60)}...`);
+        continue; // 다음 이미지로
+      }
+
+      // 2. 웹 이미지 실패시 AI 이미지 생성 시도 (API 키가 있는 경우)
+      console.log(`Web image not found, trying AI generation...`);
+
+      // AI 이미지 생성용 프롬프트
+      let aiPrompt: string;
+      if (imagePrompt?.prompt && imagePrompt.prompt.length > 10) {
+        aiPrompt = imgTag.alt
+          ? `${imagePrompt.prompt}. Context: ${imgTag.alt}`
+          : imagePrompt.prompt;
+      } else if (imgTag.alt && imgTag.alt.length > 5) {
+        aiPrompt = `High quality, professional photo of: ${imgTag.alt}. Clean, modern, visually appealing.`;
+      } else {
+        aiPrompt = `High quality, professional stock photo related to: ${searchQuery}`;
+      }
+
+      // 이미지 생성을 지원하는 프로바이더 확인
+      let imageProvider: AIProvider = provider;
+      if (provider !== 'openai' && provider !== 'gemini') {
+        const openaiKey = await getUserApiKey('openai');
+        const geminiKey = await getUserApiKey('gemini');
+        if (openaiKey) {
+          imageProvider = 'openai';
+        } else if (geminiKey) {
+          imageProvider = 'gemini';
+        } else {
+          // AI 이미지 생성 불가 - 웹 이미지도 실패했으므로 placeholder 유지
+          console.log(`Image ${i + 1}: No AI image API available, keeping placeholder`);
+          failedImages++;
+          continue;
+        }
+      }
+
       const imageResult = await generateImage(
         {
-          prompt: finalPrompt,
+          prompt: aiPrompt,
           style: 'realistic',
           size: '1024x1024',
         },
@@ -446,33 +441,42 @@ export async function generateImagesAndReplacePlaceholders(
         customConfig
       );
 
-      console.log(`Image ${i + 1} result: success=${imageResult.success}, error=${imageResult.error || 'none'}`);
-
       if (imageResult.success && imageResult.image?.url) {
-        // img 태그의 src를 실제 이미지 URL로 교체
         const newImgTag = imgTag.fullMatch.replace(imgTag.src, imageResult.image.url);
         updatedContent = updatedContent.replace(imgTag.fullMatch, newImgTag);
         generatedImages++;
-        console.log(`Image ${i + 1} replaced successfully with URL: ${imageResult.image.url.substring(0, 60)}...`);
+        console.log(`Image ${i + 1} replaced with AI image: ${imageResult.image.url.substring(0, 60)}...`);
       } else {
         failedImages++;
-        const errorDetail = imageResult.error || '알 수 없는 오류';
-        console.error(`Image ${i + 1} failed: ${errorDetail}`);
-        errors.push(`이미지 ${i + 1} 생성 실패: ${errorDetail}`);
+        errors.push(`이미지 ${i + 1} 생성 실패: ${imageResult.error || '알 수 없는 오류'}`);
       }
     } catch (error) {
       failedImages++;
       const errorMsg = error instanceof Error ? error.message : '알 수 없는 오류';
-      console.error(`Image ${i + 1} generation error:`, errorMsg);
-      errors.push(`이미지 ${i + 1} 생성 중 오류: ${errorMsg}`);
+      console.error(`Image ${i + 1} error:`, errorMsg);
+      errors.push(`이미지 ${i + 1} 처리 중 오류: ${errorMsg}`);
     }
   }
 
-  console.log(`=== Image Generation Complete ===`);
+  // 처리하지 않은 나머지 이미지는 placeholder 제거 또는 기본 이미지로 대체
+  if (imagesToReplace.length > maxImages) {
+    console.log(`Removing ${imagesToReplace.length - maxImages} extra image placeholders`);
+    for (let i = maxImages; i < imagesToReplace.length; i++) {
+      const imgTag = imagesToReplace[i];
+      // article-image div 전체 제거
+      const divPattern = new RegExp(
+        `<div[^>]*class=["'][^"']*article-image[^"']*["'][^>]*>[\\s\\S]*?${imgTag.src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[\\s\\S]*?</div>`,
+        'gi'
+      );
+      updatedContent = updatedContent.replace(divPattern, '');
+    }
+  }
+
+  console.log(`=== Image Replacement Complete ===`);
   console.log(`Generated: ${generatedImages}, Failed: ${failedImages}`);
 
   return {
-    success: failedImages === 0,
+    success: true, // 일부 실패해도 성공으로 처리 (텍스트 콘텐츠는 유지)
     content: updatedContent,
     generatedImages,
     failedImages,
