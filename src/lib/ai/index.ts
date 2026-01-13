@@ -371,20 +371,64 @@ export async function generateImagesAndReplacePlaceholders(
   console.log(`Provider: ${provider}, Image Provider: ${imageProvider}`);
   console.log(`Image Prompts count: ${imagePrompts.length}`);
 
+  // 콘텐츠에서 모든 placeholder 패턴 찾기 (다양한 형식 지원)
+  // 패턴: image-placeholder-숫자.jpg, image-placeholder-[숫자].jpg 등
+  const placeholderPatterns = [
+    /image-placeholder-(\d+)\.jpg/g,
+    /image-placeholder-\[(\d+)\]\.jpg/g,
+    /placeholder-image-(\d+)\.jpg/g,
+    /img-placeholder-(\d+)\.jpg/g,
+  ];
+
+  let allPlaceholders: string[] = [];
+  for (const pattern of placeholderPatterns) {
+    const matches = updatedContent.match(pattern) || [];
+    allPlaceholders = [...allPlaceholders, ...matches];
+  }
+  console.log(`Found placeholders in content: ${JSON.stringify(allPlaceholders)}`);
+
+  // 콘텐츠 앞부분 로그 (디버깅용)
+  console.log(`Content preview (first 1000 chars): ${updatedContent.substring(0, 1000)}`);
+
+  // 방법 1: imagePrompts 순서대로 매칭
+  // 방법 2: 콘텐츠에서 찾은 placeholder를 순서대로 교체
+
+  // placeholder가 없으면 콘텐츠에서 직접 찾아서 교체
+  if (allPlaceholders.length === 0) {
+    console.log(`No standard placeholders found. Checking for img tags with placeholder src...`);
+
+    // img 태그에서 src가 비어있거나 placeholder인 경우 찾기
+    const imgTagPattern = /<img[^>]*src=["']([^"']*placeholder[^"']*)["'][^>]*>/gi;
+    const imgMatches = updatedContent.match(imgTagPattern) || [];
+    console.log(`Found img tags with placeholder: ${imgMatches.length}`);
+  }
+
+  // imagePrompts 개수만큼 순서대로 placeholder 교체
   for (let i = 0; i < imagePrompts.length; i++) {
     const imagePrompt = imagePrompts[i];
 
-    // placeholder 패턴들 (1부터 시작, 0부터 시작, 대소문자 변형 등)
-    const placeholder1 = `image-placeholder-${i + 1}.jpg`;
-    const placeholder0 = `image-placeholder-${i}.jpg`;
+    // placeholder 패턴들 (1부터 시작, 0부터 시작, 대괄호 포함 등)
+    const possiblePlaceholders = [
+      `image-placeholder-${i + 1}.jpg`,
+      `image-placeholder-${i}.jpg`,
+      `image-placeholder-[${i + 1}].jpg`,
+      `image-placeholder-[${i}].jpg`,
+      `placeholder-${i + 1}.jpg`,
+      `placeholder-${i}.jpg`,
+    ];
 
-    // placeholder가 콘텐츠에 존재하는지 확인
-    const hasPlaceholder1 = updatedContent.includes(placeholder1);
-    const hasPlaceholder0 = updatedContent.includes(placeholder0);
+    // 실제로 존재하는 placeholder 찾기
+    let foundPlaceholder: string | null = null;
+    for (const ph of possiblePlaceholders) {
+      if (updatedContent.includes(ph)) {
+        foundPlaceholder = ph;
+        break;
+      }
+    }
 
-    console.log(`Image ${i}: prompt="${imagePrompt.prompt?.substring(0, 50)}...", placeholder1=${hasPlaceholder1}, placeholder0=${hasPlaceholder0}`);
+    console.log(`Image ${i}: prompt="${imagePrompt.prompt?.substring(0, 50)}...", foundPlaceholder=${foundPlaceholder}`);
 
-    if (!hasPlaceholder1 && !hasPlaceholder0) {
+    if (!foundPlaceholder) {
       console.log(`Skipping image ${i}: no placeholder found`);
       continue;
     }
@@ -406,12 +450,7 @@ export async function generateImagesAndReplacePlaceholders(
 
       if (imageResult.success && imageResult.image?.url) {
         // placeholder를 실제 이미지 URL로 교체
-        if (hasPlaceholder1) {
-          updatedContent = updatedContent.split(placeholder1).join(imageResult.image.url);
-        }
-        if (hasPlaceholder0) {
-          updatedContent = updatedContent.split(placeholder0).join(imageResult.image.url);
-        }
+        updatedContent = updatedContent.split(foundPlaceholder).join(imageResult.image.url);
         generatedImages++;
       } else {
         failedImages++;
