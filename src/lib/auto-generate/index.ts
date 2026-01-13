@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { decrypt } from '@/lib/crypto';
-import { generateContent, type AIProvider, type ContentGenerationParams } from '@/lib/ai';
+import { generateContentWithImages, type AIProvider, type ContentGenerationParams } from '@/lib/ai';
 import { checkUsageLimit } from '@/lib/subscription';
 
 interface AutoGenerateConfig {
@@ -351,7 +351,7 @@ export async function autoGenerateForUser(config: AutoGenerateConfig): Promise<A
       language: 'ko',
     };
 
-    const result = await generateContent(contentParams, preferredProvider, { apiKey });
+    const result = await generateContentWithImages(contentParams, preferredProvider, { apiKey });
 
     if (!result.success || !result.data) {
       errors.push(`콘텐츠 생성 실패: ${result.error}`);

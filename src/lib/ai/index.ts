@@ -9,6 +9,8 @@ import type {
   ImageGenerationParams,
   ImageGenerationResult,
   AIGeneratorConfig,
+  GeneratedContent,
+  ImagePrompt,
 } from './types';
 import { generateContentWithOpenAI, generateImageWithOpenAI } from './openai';
 import { generateContentWithClaude } from './claude';
@@ -286,13 +288,7 @@ function buildPromptForGrok(params: ContentGenerationParams): string {
 `;
 }
 
-function parseGrokResponse(responseText: string): {
-  title: string;
-  content: string;
-  summary?: string;
-  tags?: string[];
-  wordCount: number;
-} | null {
+function parseGrokResponse(responseText: string): GeneratedContent | null {
   try {
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
@@ -305,16 +301,152 @@ function parseGrokResponse(responseText: string): {
       return null;
     }
 
+    // imagePrompts 파싱
+    const imagePrompts: ImagePrompt[] = Array.isArray(parsed.imagePrompts)
+      ? parsed.imagePrompts.map((ip: { section?: string; prompt?: string; alt?: string }) => ({
+          section: ip.section || '',
+          prompt: ip.prompt || '',
+          alt: ip.alt || '',
+        }))
+      : [];
+
     return {
       title: parsed.title,
       content: parsed.content,
       summary: parsed.summary || '',
       tags: Array.isArray(parsed.tags) ? parsed.tags : [],
       wordCount: parsed.content.length,
+      imagePrompts,
     };
   } catch {
     return null;
   }
+}
+
+/**
+ * 콘텐츠 내 이미지 placeholder를 실제 이미지로 교체
+ */
+export async function generateImagesAndReplacePlaceholders(
+  content: string,
+  imagePrompts: ImagePrompt[],
+  provider: AIProvider
+): Promise<{
+  success: boolean;
+  content: string;
+  generatedImages: number;
+  failedImages: number;
+  errors: string[];
+}> {
+  const errors: string[] = [];
+  let updatedContent = content;
+  let generatedImages = 0;
+  let failedImages = 0;
+
+  // 이미지 생성을 지원하는 프로바이더 확인
+  const imageProvider = provider === 'openai' || provider === 'gemini' ? provider : 'openai';
+
+  for (let i = 0; i < imagePrompts.length; i++) {
+    const imagePrompt = imagePrompts[i];
+    const placeholderPattern = new RegExp(`image-placeholder-${i + 1}\\.jpg`, 'g');
+
+    // placeholder가 콘텐츠에 존재하는지 확인
+    if (!placeholderPattern.test(updatedContent)) {
+      // 다른 패턴도 시도 (0부터 시작하는 경우)
+      const altPattern = new RegExp(`image-placeholder-${i}\\.jpg`, 'g');
+      if (!altPattern.test(updatedContent)) {
+        continue;
+      }
+    }
+
+    try {
+      // 이미지 생성
+      const imageResult = await generateImage(
+        {
+          prompt: imagePrompt.prompt,
+          style: 'realistic',
+          size: '1024x1024',
+        },
+        imageProvider
+      );
+
+      if (imageResult.success && imageResult.image?.url) {
+        // placeholder를 실제 이미지 URL로 교체
+        updatedContent = updatedContent.replace(
+          new RegExp(`image-placeholder-${i + 1}\\.jpg`, 'g'),
+          imageResult.image.url
+        );
+        // 0부터 시작하는 패턴도 교체
+        updatedContent = updatedContent.replace(
+          new RegExp(`image-placeholder-${i}\\.jpg`, 'g'),
+          imageResult.image.url
+        );
+        generatedImages++;
+      } else {
+        failedImages++;
+        errors.push(`이미지 ${i + 1} 생성 실패: ${imageResult.error || '알 수 없는 오류'}`);
+      }
+    } catch (error) {
+      failedImages++;
+      errors.push(`이미지 ${i + 1} 생성 중 오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+    }
+  }
+
+  return {
+    success: failedImages === 0,
+    content: updatedContent,
+    generatedImages,
+    failedImages,
+    errors,
+  };
+}
+
+/**
+ * 콘텐츠 생성 + 이미지 생성 통합 함수
+ */
+export async function generateContentWithImages(
+  params: ContentGenerationParams,
+  provider: AIProvider,
+  customConfig?: Partial<AIGeneratorConfig>
+): Promise<ContentGenerationResult & {
+  imageStats?: {
+    generated: number;
+    failed: number;
+    errors: string[]
+  }
+}> {
+  // 1. 콘텐츠 생성
+  const contentResult = await generateContent(params, provider, customConfig);
+
+  if (!contentResult.success || !contentResult.data) {
+    return contentResult;
+  }
+
+  // 2. imagePrompts가 있으면 이미지 생성 및 placeholder 교체
+  const imagePrompts = contentResult.data.imagePrompts || [];
+
+  if (imagePrompts.length === 0) {
+    return contentResult;
+  }
+
+  const imageResult = await generateImagesAndReplacePlaceholders(
+    contentResult.data.content,
+    imagePrompts,
+    provider
+  );
+
+  // 3. 결과 반환
+  return {
+    ...contentResult,
+    data: {
+      ...contentResult.data,
+      content: imageResult.content,
+    },
+    imageStats: {
+      generated: imageResult.generatedImages,
+      failed: imageResult.failedImages,
+      errors: imageResult.errors,
+    },
+  };
 }
 
 /**

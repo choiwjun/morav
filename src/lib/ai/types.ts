@@ -14,12 +14,19 @@ export interface ContentGenerationParams {
   imageStyle?: 'photo' | 'illustration' | 'infographic' | 'minimal';
 }
 
+export interface ImagePrompt {
+  section: string;
+  prompt: string;
+  alt: string;
+}
+
 export interface GeneratedContent {
   title: string;
   content: string;
   summary?: string;
   tags?: string[];
   wordCount: number;
+  imagePrompts?: ImagePrompt[];
 }
 
 export interface ContentGenerationResult {

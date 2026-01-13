@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { generateContent, getAvailableProviders } from '@/lib/ai';
+import { generateContentWithImages, getAvailableProviders } from '@/lib/ai';
 import type { AIProvider, ContentGenerationParams } from '@/lib/ai/types';
 
 export async function POST(request: NextRequest) {
@@ -57,8 +57,8 @@ export async function POST(request: NextRequest) {
       maxLength: 5000,
     };
 
-    // AI 콘텐츠 생성
-    const result = await generateContent(params, provider);
+    // AI 콘텐츠 + 이미지 생성
+    const result = await generateContentWithImages(params, provider);
 
     if (!result.success) {
       return NextResponse.json(
@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
       data: result.data,
       provider: result.provider,
       processingTime: result.processingTime,
+      imageStats: result.imageStats,
     });
   } catch (error) {
     console.error('AI Generate API error:', error);

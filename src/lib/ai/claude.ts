@@ -72,12 +72,22 @@ function parseContentResponse(responseText: string): GeneratedContent | null {
       return null;
     }
 
+    // imagePrompts 파싱
+    const imagePrompts = Array.isArray(parsed.imagePrompts)
+      ? parsed.imagePrompts.map((ip: { section?: string; prompt?: string; alt?: string }) => ({
+          section: ip.section || '',
+          prompt: ip.prompt || '',
+          alt: ip.alt || '',
+        }))
+      : [];
+
     return {
       title: parsed.title,
       content: parsed.content,
       summary: parsed.summary || '',
       tags: Array.isArray(parsed.tags) ? parsed.tags : [],
       wordCount: parsed.content.length,
+      imagePrompts,
     };
   } catch {
     return null;
