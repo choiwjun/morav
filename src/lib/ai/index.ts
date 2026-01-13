@@ -377,7 +377,7 @@ export async function generateImagesAndReplacePlaceholders(
     const imagePrompt = imagePrompts[i]; // 순서대로 매칭
 
     // 검색 쿼리 생성
-    const searchQuery = extractImageSearchQuery(
+    const searchQuery = await extractImageSearchQuery(
       imagePrompt?.prompt || '',
       imagePrompt?.section,
       imgTag.alt
