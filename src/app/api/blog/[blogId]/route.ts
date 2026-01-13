@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { disconnectBlog } from '@/lib/actions/blog';
 
 export async function DELETE(
-  request: NextRequest,
+  _request: Request,
   { params }: { params: Promise<{ blogId: string }> }
 ) {
   try {
