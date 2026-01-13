@@ -30,6 +30,13 @@ export async function GET(request: NextRequest) {
       cleanup: { success: false, deletedCount: 0 },
     };
 
+    // 디버그 정보
+    const debug = {
+      hasNaverClientId: !!process.env.NAVER_CLIENT_ID,
+      hasNaverClientSecret: !!process.env.NAVER_CLIENT_SECRET,
+      hasSerpApiKey: !!process.env.SERPAPI_KEY,
+    };
+
     const supabase = await createClient();
 
     // 1. 네이버 트렌드 수집
@@ -99,6 +106,7 @@ export async function GET(request: NextRequest) {
       success: results.naver.success || results.google.success,
       message: 'Keyword collection completed',
       results,
+      debug,
       duration: `${duration}ms`,
       timestamp: new Date().toISOString(),
     });

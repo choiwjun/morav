@@ -119,9 +119,17 @@ async function collectNaverTrendsAlternative(): Promise<KeywordCollectionResult>
   const clientId = process.env.NAVER_CLIENT_ID;
   const clientSecret = process.env.NAVER_CLIENT_SECRET;
 
+  console.log('Naver API keys check:', {
+    hasClientId: !!clientId,
+    hasClientSecret: !!clientSecret,
+    clientIdLength: clientId?.length,
+    clientSecretLength: clientSecret?.length
+  });
+
   if (clientId && clientSecret) {
     try {
       const keywords = await collectFromNaverSearchAPI(clientId, clientSecret);
+      console.log('Naver API result:', { keywordsCount: keywords.length });
       if (keywords.length > 0) {
         return {
           success: true,
@@ -131,7 +139,7 @@ async function collectNaverTrendsAlternative(): Promise<KeywordCollectionResult>
         };
       }
     } catch (error) {
-      console.error('Naver Shopping API error:', error);
+      console.error('Naver Search API error:', error);
     }
   }
 
