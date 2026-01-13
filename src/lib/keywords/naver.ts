@@ -3,41 +3,69 @@
 import { TrendKeyword, KeywordCollectionResult } from './types';
 import { classifyKeyword } from './classifier';
 
-const NAVER_SEARCH_URL = 'https://openapi.naver.com/v1/search/blog.json';
-const REQUEST_TIMEOUT = 10000; // 10초
+const NAVER_DATALAB_SEARCH_URL = 'https://openapi.naver.com/v1/datalab/search';
+const REQUEST_TIMEOUT = 15000; // 15초
 
-// 수집할 인기 키워드 목록 (다양한 카테고리)
-const TRENDING_KEYWORDS = [
-  // IT/기술
-  'AI 트렌드', 'ChatGPT 활용', '아이폰 신제품', '갤럭시 출시', '테슬라 뉴스',
-  // 경제/금융
-  '주식 전망', '비트코인 시세', '부동산 동향', '금리 인상', '환율 변동',
-  // 생활/건강
-  '다이어트 방법', '홈트레이닝', '건강식품 추천', '피부관리 팁', '수면 개선',
-  // 여행/레저
-  '국내여행 추천', '해외여행 준비', '호텔 예약', '항공권 특가', '맛집 탐방',
-  // 엔터테인먼트
-  '넷플릭스 신작', '인기 드라마', 'K-pop 뉴스', '영화 개봉', '유튜브 트렌드',
+// 수집할 인기 키워드 그룹 (최대 5개 그룹, 각 그룹당 최대 20개 키워드)
+const KEYWORD_GROUPS = [
+  {
+    groupName: 'AI 트렌드',
+    keywords: ['AI', 'ChatGPT', '인공지능', 'GPT', '클로드'],
+    category: 'it',
+  },
+  {
+    groupName: '스마트폰',
+    keywords: ['아이폰', '갤럭시', '삼성폰', '애플', '폴드'],
+    category: 'it',
+  },
+  {
+    groupName: '투자',
+    keywords: ['주식', '비트코인', '부동산', '금투자', 'ETF'],
+    category: 'business',
+  },
+  {
+    groupName: '건강',
+    keywords: ['다이어트', '운동', '헬스', '필라테스', '요가'],
+    category: 'health',
+  },
+  {
+    groupName: '여행',
+    keywords: ['국내여행', '해외여행', '호텔', '항공권', '제주도'],
+    category: 'travel',
+  },
 ];
 
-interface NaverSearchResponse {
-  lastBuildDate: string;
-  total: number;
-  start: number;
-  display: number;
-  items: Array<{
+// 추가 개별 키워드 그룹들 (순차적으로 API 호출)
+const ADDITIONAL_KEYWORD_SETS = [
+  [
+    { groupName: '넷플릭스', keywords: ['넷플릭스', '드라마추천'], category: 'entertainment' },
+    { groupName: '유튜브', keywords: ['유튜브', '유튜버'], category: 'entertainment' },
+    { groupName: 'K-pop', keywords: ['아이돌', 'K-pop', 'BTS'], category: 'entertainment' },
+    { groupName: '영화', keywords: ['영화', '영화추천', '개봉영화'], category: 'entertainment' },
+    { groupName: '맛집', keywords: ['맛집', '맛집추천', '카페'], category: 'food' },
+  ],
+  [
+    { groupName: '뷰티', keywords: ['화장품', '스킨케어', '뷰티'], category: 'lifestyle' },
+    { groupName: '패션', keywords: ['패션', '코디', '옷추천'], category: 'lifestyle' },
+    { groupName: '자동차', keywords: ['전기차', '테슬라', '자동차'], category: 'it' },
+    { groupName: '게임', keywords: ['게임', '스팀', '닌텐도'], category: 'entertainment' },
+    { groupName: '부업', keywords: ['부업', '재테크', 'N잡'], category: 'business' },
+  ],
+];
+
+interface NaverDatalabResponse {
+  startDate: string;
+  endDate: string;
+  timeUnit: string;
+  results: Array<{
     title: string;
-    link: string;
-    description: string;
-    bloggername: string;
-    bloggerlink: string;
-    postdate: string;
+    keywords: string[];
+    data: Array<{ period: string; ratio: number }>;
   }>;
 }
 
 /**
- * 네이버 검색 API를 통한 트렌드 키워드 수집
- * 인기 키워드로 검색하여 연관 키워드와 트렌드 점수를 계산합니다.
+ * 네이버 데이터랩 검색어트렌드 API를 통한 키워드 수집
  */
 export async function collectNaverTrends(): Promise<KeywordCollectionResult> {
   const collectedAt = new Date().toISOString();
@@ -56,48 +84,41 @@ export async function collectNaverTrends(): Promise<KeywordCollectionResult> {
   }
 
   try {
-    const keywords: TrendKeyword[] = [];
+    const allKeywords: TrendKeyword[] = [];
 
-    // 각 트렌딩 키워드로 검색하여 결과 수집
-    for (let i = 0; i < TRENDING_KEYWORDS.length; i++) {
-      const searchKeyword = TRENDING_KEYWORDS[i];
-
-      try {
-        const result = await searchNaverBlog(clientId, clientSecret, searchKeyword);
-
-        if (result && result.total > 0) {
-          const classification = classifyKeyword(searchKeyword);
-          keywords.push({
-            keyword: searchKeyword,
-            rank: i + 1,
-            category: classification.category,
-            // 검색 결과 수를 기반으로 트렌드 점수 계산 (최대 100)
-            trendScore: Math.min(100, Math.round(result.total / 1000)),
-          });
-        }
-      } catch (error) {
-        console.error(`Failed to search for "${searchKeyword}":`, error);
-      }
-
-      // API 호출 간 약간의 딜레이
-      await new Promise(resolve => setTimeout(resolve, 100));
+    // 첫 번째 키워드 그룹 세트 호출
+    const firstResult = await fetchDatalabTrends(clientId, clientSecret, KEYWORD_GROUPS);
+    if (firstResult) {
+      allKeywords.push(...firstResult);
     }
 
-    if (keywords.length === 0) {
+    // 추가 키워드 세트들 순차 호출 (API 제한 고려)
+    for (const keywordSet of ADDITIONAL_KEYWORD_SETS) {
+      await new Promise(resolve => setTimeout(resolve, 200)); // 딜레이
+      const result = await fetchDatalabTrends(clientId, clientSecret, keywordSet);
+      if (result) {
+        allKeywords.push(...result);
+      }
+    }
+
+    if (allKeywords.length === 0) {
       return {
         success: false,
-        error: '네이버 검색 결과를 가져올 수 없습니다.',
+        error: '네이버 데이터랩 API 결과를 가져올 수 없습니다.',
         source: 'naver',
         collectedAt,
       };
     }
 
-    // 트렌드 점수로 정렬
-    keywords.sort((a, b) => (b.trendScore || 0) - (a.trendScore || 0));
+    // 트렌드 점수로 정렬하고 순위 재부여
+    allKeywords.sort((a, b) => (b.trendScore || 0) - (a.trendScore || 0));
+    allKeywords.forEach((kw, idx) => {
+      kw.rank = idx + 1;
+    });
 
     return {
       success: true,
-      keywords,
+      keywords: allKeywords,
       source: 'naver',
       collectedAt,
     };
@@ -113,41 +134,72 @@ export async function collectNaverTrends(): Promise<KeywordCollectionResult> {
 }
 
 /**
- * 네이버 블로그 검색 API 호출
+ * 네이버 데이터랩 검색어트렌드 API 호출
  */
-async function searchNaverBlog(
+async function fetchDatalabTrends(
   clientId: string,
   clientSecret: string,
-  query: string
-): Promise<NaverSearchResponse | null> {
+  keywordGroups: Array<{ groupName: string; keywords: string[]; category: string }>
+): Promise<TrendKeyword[] | null> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
-  try {
-    const url = new URL(NAVER_SEARCH_URL);
-    url.searchParams.set('query', query);
-    url.searchParams.set('display', '10');
-    url.searchParams.set('sort', 'date');
+  const endDate = new Date();
+  const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const formatDate = (date: Date) => date.toISOString().split('T')[0];
 
-    const response = await fetch(url.toString(), {
-      method: 'GET',
+  try {
+    const response = await fetch(NAVER_DATALAB_SEARCH_URL, {
+      method: 'POST',
       headers: {
         'X-Naver-Client-Id': clientId,
         'X-Naver-Client-Secret': clientSecret,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        startDate: formatDate(startDate),
+        endDate: formatDate(endDate),
+        timeUnit: 'date',
+        keywordGroups: keywordGroups.map(g => ({
+          groupName: g.groupName,
+          keywords: g.keywords,
+        })),
+      }),
       signal: controller.signal,
     });
 
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.error('Naver search API error:', response.status);
+      const errorText = await response.text();
+      console.error('Naver Datalab API error:', response.status, errorText);
       return null;
     }
 
-    return await response.json();
+    const data: NaverDatalabResponse = await response.json();
+    const keywords: TrendKeyword[] = [];
+
+    data.results.forEach((result, index) => {
+      // 최근 데이터의 ratio를 트렌드 점수로 사용
+      const latestRatio = result.data[result.data.length - 1]?.ratio || 0;
+      const originalGroup = keywordGroups[index];
+
+      // 대표 키워드로 저장 (첫번째 키워드 사용)
+      const mainKeyword = originalGroup?.keywords[0] || result.title;
+      const classification = classifyKeyword(mainKeyword);
+
+      keywords.push({
+        keyword: mainKeyword,
+        rank: index + 1,
+        category: originalGroup?.category || classification.category,
+        trendScore: Math.round(latestRatio),
+      });
+    });
+
+    return keywords;
   } catch (error) {
     clearTimeout(timeoutId);
-    throw error;
+    console.error('Datalab fetch error:', error);
+    return null;
   }
 }
