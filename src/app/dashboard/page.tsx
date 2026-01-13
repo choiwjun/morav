@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { getDashboardData } from '@/lib/actions/dashboard';
+import { getRecentKeywords } from '@/lib/actions/keywords';
 import { MetricCard } from '@/components/dashboard/MetricCard';
 import { RecentPostsList } from '@/components/dashboard/RecentPostsList';
 import { WeeklyChart } from '@/components/dashboard/WeeklyChart';
@@ -21,7 +22,10 @@ export default async function DashboardPage() {
     redirect('/auth/login');
   }
 
-  const result = await getDashboardData();
+  const [result, keywordsResult] = await Promise.all([
+    getDashboardData(),
+    getRecentKeywords(5), // 상위 5개 키워드 조회
+  ]);
 
   if (!result.success || !result.stats || !result.recentPosts || !result.subscription) {
     return (
@@ -36,6 +40,15 @@ export default async function DashboardPage() {
   }
 
   const { stats, recentPosts, subscription } = result;
+
+  // 키워드 데이터 변환 (TrendingKeywordsWidget 형식에 맞게)
+  const trendingKeywords = (keywordsResult.keywords || []).map((k) => ({
+    id: k.id,
+    keyword: k.keyword,
+    category: k.category,
+    trendingScore: k.trendScore,
+    trend: 'up' as const,
+  }));
 
   // 사용자 이름 추출 (이메일에서 @ 앞부분 또는 메타데이터에서)
   const userName = user.user_metadata?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || '사용자';
@@ -122,7 +135,7 @@ export default async function DashboardPage() {
           <div className="flex-1 min-w-0 space-y-4 sm:space-y-6 order-2 lg:order-1">
             <RecentPostsList posts={recentPosts} />
             <WeeklyChart />
-            <TrendingKeywordsWidget keywords={[]} />
+            <TrendingKeywordsWidget keywords={trendingKeywords} />
           </div>
 
           {/* Right Column: Widgets */}

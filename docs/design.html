@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Morav 대시보드</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0051ff",
+                        "background-light": "#f9fafa",
+                        "background-dark": "#1f242e",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "Pretendard", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#0c111d] dark:text-white antialiased">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 border-r border-[#e6ebf4] dark:border-gray-800 bg-white dark:bg-[#11141b] flex flex-col justify-between p-6">
+<div class="flex flex-col gap-8">
+<div class="flex items-center gap-3 px-2">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xl">auto_awesome</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight">Morav</h1>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary font-semibold transition-all" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-sm">대시보드</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#4562a1] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="text-sm">포스트 관리</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#4562a1] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all" href="#">
+<span class="material-symbols-outlined">key_visualizer</span>
+<span class="text-sm">키워드 분석</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#4562a1] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm">설정</span>
+</a>
+</nav>
+</div>
+<div class="flex flex-col gap-4">
+<div class="p-4 bg-primary/5 rounded-2xl border border-primary/10">
+<p class="text-xs font-medium text-primary mb-1">Standard 플랜 사용 중</p>
+<div class="flex items-end justify-between mb-2">
+<p class="text-lg font-bold text-primary">150 / 200</p>
+<p class="text-xs text-[#4562a1]">75%</p>
+</div>
+<div class="h-1.5 w-full bg-primary/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 75%;"></div>
+</div>
+</div>
+<div class="flex items-center gap-3 px-2">
+<div class="size-10 rounded-full bg-gray-200" data-alt="사용자 프로필 이미지" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCiA9naQ24gwhtELYPbFeL3IqVKYxVirIWSMIktaOgxUsHwUcf0q6dIesvz1lzC4j4M--C0fu9g2rKNM2TiZKJxbH-fUsXoQFDcz6pYaoaUzvdVoISakmINEG9X30B45_Xi8VXdb5-h90kEd1Ro9DLu6-CtkOHA79DIhStUKo50uAKpOIgtAthz_MEWOcdKbBQxB56TZqWokH-6BaGZrQNAR87BR_nWnXFxJqAn7J0j3wn6YHUT6JPfRZLwAM3RyPIahMbg7JiYAMQ'); background-size: cover;"></div>
+<div class="flex flex-col">
+<p class="text-sm font-bold">홍길동</p>
+<p class="text-xs text-[#4562a1]">Premium Member</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">
+<!-- Header -->
+<header class="sticky top-0 z-10 flex items-center justify-between px-10 py-6 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="flex flex-col gap-1">
+<h2 class="text-3xl font-black tracking-tight">안녕하세요, 홍길동님 👋</h2>
+<p class="text-[#4562a1] font-medium">오늘도 블로그 자동화가 원활하게 진행 중입니다.</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#4562a1]">search</span>
+<input class="pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary w-64 shadow-sm" placeholder="문서 검색..." type="text"/>
+</div>
+<button class="flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined text-xl">bolt</span>
+<span>Quick Start</span>
+</button>
+</div>
+</header>
+<!-- Stats Grid -->
+<div class="px-10 grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-[#cdd6ea] dark:border-gray-700 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<p class="text-sm font-semibold text-[#4562a1]">이번 달 발행 건수</p>
+<span class="material-symbols-outlined text-primary">description</span>
+</div>
+<div class="flex items-baseline gap-2">
+<p class="text-4xl font-bold">150</p>
+<p class="text-lg text-[#4562a1] font-medium">/ 200</p>
+</div>
+<div class="flex items-center gap-2 text-[#07883d] text-sm font-bold">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>전월 대비 +12.5%</span>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-[#cdd6ea] dark:border-gray-700 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<p class="text-sm font-semibold text-[#4562a1]">평균 유입 증가율</p>
+<span class="material-symbols-outlined text-primary">auto_graph</span>
+</div>
+<div class="flex items-baseline gap-2">
+<p class="text-4xl font-bold">+45%</p>
+</div>
+<div class="flex items-center gap-2 text-[#07883d] text-sm font-bold">
+<span class="material-symbols-outlined text-sm">arrow_upward</span>
+<span>상위 3% 도달</span>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-[#cdd6ea] dark:border-gray-700 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<p class="text-sm font-semibold text-[#4562a1]">연동 블로그 상태</p>
+<span class="material-symbols-outlined text-primary">link</span>
+</div>
+<div class="flex items-baseline gap-2">
+<p class="text-4xl font-bold">정상</p>
+<p class="text-lg text-[#4562a1] font-medium">2/2</p>
+</div>
+<div class="flex items-center gap-2 text-primary text-sm font-bold">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+<span>연결 안정성 매우 높음</span>
+</div>
+</div>
+</div>
+<!-- Main Content Area: List & Chart -->
+<div class="px-10 grid grid-cols-1 xl:grid-cols-5 gap-8 pb-10">
+<!-- Publishing Status List -->
+<div class="xl:col-span-3 bg-white dark:bg-gray-800 rounded-2xl border border-[#cdd6ea] dark:border-gray-700 overflow-hidden flex flex-col shadow-sm">
+<div class="px-8 py-6 border-b border-[#e6ebf4] dark:border-gray-700 flex items-center justify-between">
+<h3 class="text-xl font-bold">최근 발행 현황</h3>
+<button class="text-sm font-medium text-primary hover:underline">전체 보기</button>
+</div>
+<div class="flex flex-col divide-y divide-[#e6ebf4] dark:divide-gray-700">
+<!-- Row 1 -->
+<div class="px-8 py-5 flex items-center justify-between group hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-lg bg-[#e6ebf4] dark:bg-gray-700 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">rss_feed</span>
+</div>
+<div class="flex flex-col">
+<p class="text-sm font-bold group-hover:text-primary transition-colors">2024 AI 마케팅 트렌드 분석</p>
+<p class="text-xs text-[#4562a1]">Naver Blog • 2시간 전</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="px-3 py-1 bg-[#e7f6ed] text-[#07883d] text-xs font-bold rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> 성공
+                            </span>
+<span class="material-symbols-outlined text-gray-400 cursor-pointer">more_horiz</span>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="px-8 py-5 flex items-center justify-between group hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-lg bg-[#e6ebf4] dark:bg-gray-700 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">edit_note</span>
+</div>
+<div class="flex flex-col">
+<p class="text-sm font-bold group-hover:text-primary transition-colors">수익형 블로그 운영 노하우 7가지</p>
+<p class="text-xs text-[#4562a1]">Tistory • 생성 중</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full flex items-center gap-1 animate-pulse">
+<span class="material-symbols-outlined text-[14px]">refresh</span> 분석 중
+                            </span>
+<span class="material-symbols-outlined text-gray-400 cursor-pointer">more_horiz</span>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="px-8 py-5 flex items-center justify-between group hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-lg bg-[#e6ebf4] dark:bg-gray-700 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">schedule</span>
+</div>
+<div class="flex flex-col">
+<p class="text-sm font-bold group-hover:text-primary transition-colors">디지털 노마드 가이드 2024</p>
+<p class="text-xs text-[#4562a1]">Naver Blog • 오늘 오후 6:00 예약</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span> 예약됨
+                            </span>
+<span class="material-symbols-outlined text-gray-400 cursor-pointer">more_horiz</span>
+</div>
+</div>
+<!-- Row 4 -->
+<div class="px-8 py-5 flex items-center justify-between group hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-lg bg-[#e6ebf4] dark:bg-gray-700 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">rss_feed</span>
+</div>
+<div class="flex flex-col">
+<p class="text-sm font-bold group-hover:text-primary transition-colors">파이썬 데이터 시각화 기초</p>
+<p class="text-xs text-[#4562a1]">Tistory • 어제</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="px-3 py-1 bg-[#e7f6ed] text-[#07883d] text-xs font-bold rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> 성공
+                            </span>
+<span class="material-symbols-outlined text-gray-400 cursor-pointer">more_horiz</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Growth Chart -->
+<div class="xl:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-[#cdd6ea] dark:border-gray-700 p-8 flex flex-col gap-6 shadow-sm">
+<div class="flex flex-col gap-1">
+<h3 class="text-xl font-bold">최근 7일 유입 추이</h3>
+<p class="text-sm text-[#4562a1]">매일 오전 9시에 업데이트됩니다.</p>
+</div>
+<div class="flex-1 flex flex-col justify-between pt-4">
+<!-- Custom Chart Implementation (Simplified Bar/Graph Style) -->
+<div class="flex items-end justify-between h-48 gap-2">
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-t-lg relative group h-24">
+<div class="absolute bottom-0 w-full bg-primary/40 rounded-t-lg transition-all h-[40%] group-hover:bg-primary"></div>
+</div>
+<span class="text-[10px] text-[#4562a1] font-bold">MON</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-t-lg relative group h-48">
+<div class="absolute bottom-0 w-full bg-primary/40 rounded-t-lg transition-all h-[65%] group-hover:bg-primary"></div>
+</div>
+<span class="text-[10px] text-[#4562a1] font-bold">TUE</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-t-lg relative group h-48">
+<div class="absolute bottom-0 w-full bg-primary/40 rounded-t-lg transition-all h-[50%] group-hover:bg-primary"></div>
+</div>
+<span class="text-[10px] text-[#4562a1] font-bold">WED</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-t-lg relative group h-48">
+<div class="absolute bottom-0 w-full bg-primary/40 rounded-t-lg transition-all h-[85%] group-hover:bg-primary"></div>
+</div>
+<span class="text-[10px] text-[#4562a1] font-bold">THU</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-t-lg relative group h-48">
+<div class="absolute bottom-0 w-full bg-primary rounded-t-lg h-[95%]"></div>
+</div>
+<span class="text-[10px] text-primary font-black underline">TODAY</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 opacity-30">
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-t-lg h-10"></div>
+<span class="text-[10px] text-[#4562a1] font-bold">SAT</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 opacity-30">
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-t-lg h-10"></div>
+<span class="text-[10px] text-[#4562a1] font-bold">SUN</span>
+</div>
+</div>
+<div class="mt-4 p-4 bg-primary/5 rounded-xl border border-primary/10">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-primary">lightbulb</span>
+</div>
+<p class="text-xs font-medium leading-relaxed">
+<span class="font-bold text-primary">인사이트:</span> 최근 목요일 밤 10시 이후에 발행된 글들이 <br/>평균보다 <span class="font-bold">2.4배</span> 높은 조회수를 기록하고 있어요.
+                            </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
