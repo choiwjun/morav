@@ -390,38 +390,55 @@ export async function generateImagesAndReplacePlaceholders(
   // 콘텐츠 앞부분 로그 (디버깅용)
   console.log(`Content preview (first 1000 chars): ${updatedContent.substring(0, 1000)}`);
 
-  // 콘텐츠에서 모든 img 태그의 src 속성 찾기
-  const imgSrcPattern = /<img[^>]*src=["']([^"']+)["'][^>]*>/gi;
-  const allImgTags: { fullMatch: string; src: string }[] = [];
+  // 콘텐츠에서 모든 img 태그의 src와 alt 속성 찾기
+  const imgTagPattern = /<img[^>]*src=["']([^"']+)["'][^>]*>/gi;
+  const allImgTags: { fullMatch: string; src: string; alt: string }[] = [];
   let match;
-  while ((match = imgSrcPattern.exec(updatedContent)) !== null) {
-    allImgTags.push({ fullMatch: match[0], src: match[1] });
+  while ((match = imgTagPattern.exec(updatedContent)) !== null) {
+    const fullMatch = match[0];
+    const src = match[1];
+    // alt 속성 추출
+    const altMatch = fullMatch.match(/alt=["']([^"']*)["']/i);
+    const alt = altMatch ? altMatch[1] : '';
+    allImgTags.push({ fullMatch, src, alt });
   }
   console.log(`Found ${allImgTags.length} img tags in content`);
-  console.log(`Img sources: ${JSON.stringify(allImgTags.map(t => t.src))}`);
+  console.log(`Img tags: ${JSON.stringify(allImgTags.map(t => ({ src: t.src, alt: t.alt })))}`);
 
-  // 이미지 태그 수와 imagePrompts 수 중 작은 것만큼 처리
-  const imagesToProcess = Math.min(allImgTags.length, imagePrompts.length);
-  console.log(`Will process ${imagesToProcess} images`);
+  // 교체가 필요한 이미지만 필터링 (http/https/data: 가 아닌 것)
+  const imagesToReplace = allImgTags.filter(
+    img => !img.src.startsWith('http://') && !img.src.startsWith('https://') && !img.src.startsWith('data:')
+  );
+  console.log(`Images needing replacement: ${imagesToReplace.length}`);
 
-  for (let i = 0; i < imagesToProcess; i++) {
-    const imagePrompt = imagePrompts[i];
-    const imgTag = allImgTags[i];
+  for (let i = 0; i < imagesToReplace.length; i++) {
+    const imgTag = imagesToReplace[i];
+    const imagePrompt = imagePrompts[i]; // 순서대로 매칭
 
-    console.log(`Image ${i}: prompt="${imagePrompt.prompt?.substring(0, 50)}...", currentSrc="${imgTag.src}"`);
-
-    // 이미 http/https URL이면 스킵 (이미 실제 이미지)
-    if (imgTag.src.startsWith('http://') || imgTag.src.startsWith('https://') || imgTag.src.startsWith('data:')) {
-      console.log(`Skipping image ${i}: already has valid URL`);
+    // 이미지 프롬프트 구성: imagePrompts가 있으면 사용, 없으면 alt 텍스트 활용
+    let finalPrompt: string;
+    if (imagePrompt?.prompt && imagePrompt.prompt.length > 10) {
+      // imagePrompt가 있으면 alt 텍스트를 추가해서 더 구체적으로
+      finalPrompt = imgTag.alt
+        ? `${imagePrompt.prompt}. Context: ${imgTag.alt}`
+        : imagePrompt.prompt;
+    } else if (imgTag.alt && imgTag.alt.length > 5) {
+      // imagePrompt가 없으면 alt 텍스트로 프롬프트 생성
+      finalPrompt = `High quality, professional photo of: ${imgTag.alt}. Clean, modern, visually appealing.`;
+    } else {
+      // 둘 다 없으면 스킵
+      console.log(`Skipping image ${i}: no prompt or alt text available`);
       continue;
     }
+
+    console.log(`Image ${i}: finalPrompt="${finalPrompt.substring(0, 80)}...", currentSrc="${imgTag.src}"`);
 
     try {
       // 이미지 생성
       console.log(`Generating image ${i + 1} with ${imageProvider}...`);
       const imageResult = await generateImage(
         {
-          prompt: imagePrompt.prompt,
+          prompt: finalPrompt,
           style: 'realistic',
           size: '1024x1024',
         },
@@ -429,17 +446,19 @@ export async function generateImagesAndReplacePlaceholders(
         customConfig
       );
 
-      console.log(`Image ${i + 1} result: success=${imageResult.success}, url=${imageResult.image?.url?.substring(0, 50)}...`);
+      console.log(`Image ${i + 1} result: success=${imageResult.success}, error=${imageResult.error || 'none'}`);
 
       if (imageResult.success && imageResult.image?.url) {
         // img 태그의 src를 실제 이미지 URL로 교체
         const newImgTag = imgTag.fullMatch.replace(imgTag.src, imageResult.image.url);
         updatedContent = updatedContent.replace(imgTag.fullMatch, newImgTag);
         generatedImages++;
-        console.log(`Image ${i + 1} replaced successfully`);
+        console.log(`Image ${i + 1} replaced successfully with URL: ${imageResult.image.url.substring(0, 60)}...`);
       } else {
         failedImages++;
-        errors.push(`이미지 ${i + 1} 생성 실패: ${imageResult.error || '알 수 없는 오류'}`);
+        const errorDetail = imageResult.error || '알 수 없는 오류';
+        console.error(`Image ${i + 1} failed: ${errorDetail}`);
+        errors.push(`이미지 ${i + 1} 생성 실패: ${errorDetail}`);
       }
     } catch (error) {
       failedImages++;
