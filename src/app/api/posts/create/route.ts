@@ -151,23 +151,34 @@ export async function POST(request: NextRequest) {
 
     // 즉시 발행인 경우 바로 발행 실행
     if (postStatus === 'pending') {
-      const publishResult = await publishAndUpdatePost(post.id);
+      try {
+        const publishResult = await publishAndUpdatePost(post.id);
 
-      if (publishResult.success) {
-        return NextResponse.json({
-          success: true,
-          post: {
-            id: post.id,
-            url: publishResult.postUrl,
-          },
-          message: '발행이 완료되었습니다.',
-        });
-      } else {
+        if (publishResult.success) {
+          return NextResponse.json({
+            success: true,
+            post: {
+              id: post.id,
+              url: publishResult.postUrl,
+            },
+            message: '발행이 완료되었습니다.',
+          });
+        } else {
+          // 발행 실패해도 포스트는 생성됨 - 400으로 반환하고 에러 메시지 전달
+          return NextResponse.json({
+            success: false,
+            post: { id: post.id },
+            error: publishResult.error || '발행에 실패했습니다. 포스트는 저장되었습니다.',
+          }, { status: 400 });
+        }
+      } catch (publishError) {
+        console.error('Publish error:', publishError);
+        // 발행 중 예외 발생해도 포스트는 생성됨
         return NextResponse.json({
           success: false,
           post: { id: post.id },
-          error: publishResult.error || '발행에 실패했습니다.',
-        }, { status: 500 });
+          error: '발행 중 오류가 발생했습니다. 포스트는 저장되었습니다.',
+        }, { status: 400 });
       }
     }
 
