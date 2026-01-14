@@ -286,8 +286,8 @@ export async function connectWordpress(credentials: WordpressCredentials): Promi
 
     const blogName = (siteData.name || userData.name || 'WordPress Blog').slice(0, MAX_LENGTHS.BLOG_NAME);
 
-    // Encrypt credentials
-    const encryptedCredentials = encrypt(`${username}:${applicationPassword}`);
+    // Encrypt credentials (Application Password만 암호화)
+    const encryptedPassword = encrypt(applicationPassword);
 
     // Upsert blog connection (중복 처리)
     const { data: savedBlog, error: upsertError } = await supabase
@@ -298,7 +298,8 @@ export async function connectWordpress(credentials: WordpressCredentials): Promi
           platform: 'wordpress',
           blog_name: blogName,
           blog_url: normalizedUrl.slice(0, MAX_LENGTHS.URL),
-          access_token: encryptedCredentials,
+          access_token: encryptedPassword,
+          username: username, // username 별도 저장
           is_active: true,
         },
         {
