@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 
 // 세션 업데이트가 필요한 경로 패턴
-const SESSION_PATHS = ['/dashboard', '/settings', '/onboarding', '/auth/callback'];
+const SESSION_PATHS = ['/dashboard', '/settings', '/onboarding', '/auth/callback', '/admin'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -23,5 +23,6 @@ export const config = {
     '/settings/:path*',
     '/onboarding/:path*',
     '/auth/callback',
+    '/admin/:path*',
   ],
 };
