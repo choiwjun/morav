@@ -90,7 +90,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         const response = await fetch('/api/admin/check');
         const data = await response.json();
 
+        // 디버깅용 로그
+        console.log('[Admin Layout] Check response:', data);
+
         if (!data.isAdmin) {
+          console.log('[Admin Layout] Not admin, redirecting to dashboard');
           router.push('/dashboard');
           return;
         }
