@@ -18,6 +18,23 @@ interface AutoGenerateResult {
 }
 
 /**
+ * 타임존 오프셋 계산 (시간 단위)
+ */
+function getTimezoneOffset(timezone: string): number {
+  const offsets: Record<string, number> = {
+    'Asia/Seoul': 9,
+    'Asia/Tokyo': 9,
+    'Asia/Shanghai': 8,
+    'UTC': 0,
+    'America/New_York': -5,
+    'America/Los_Angeles': -8,
+    'Europe/London': 0,
+    'Europe/Paris': 1,
+  };
+  return offsets[timezone] ?? 9; // 기본값: 한국 시간
+}
+
+/**
  * 다음 발행 시간 계산 (사용자 스케줄 기반)
  */
 export function calculateNextPublishTime(
@@ -30,6 +47,10 @@ export function calculateNextPublishTime(
   }
 
   const [hours, minutes] = publishTime.split(':').map(Number);
+  if (isNaN(hours) || isNaN(minutes)) {
+    return null;
+  }
+
   const dayMap: Record<string, number> = {
     Sunday: 0,
     Monday: 1,
@@ -40,16 +61,18 @@ export function calculateNextPublishTime(
     Saturday: 6,
   };
 
-  const now = new Date();
+  // 현재 UTC 시간
+  const nowUtc = new Date();
 
-  // 타임존 오프셋 계산 (Asia/Seoul = UTC+9)
-  const timezoneOffset = timezone === 'Asia/Seoul' ? 9 : 0;
-  const utcNow = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
-  const localNow = new Date(utcNow.getTime() + timezoneOffset * 3600000);
+  // 타임존 오프셋 (시간 단위)
+  const timezoneOffsetHours = getTimezoneOffset(timezone);
 
-  const currentDay = localNow.getDay();
-  const currentHour = localNow.getHours();
-  const currentMinute = localNow.getMinutes();
+  // 현재 로컬 시간 계산 (UTC + 오프셋)
+  const localNow = new Date(nowUtc.getTime() + timezoneOffsetHours * 60 * 60 * 1000);
+
+  const currentDay = localNow.getUTCDay();
+  const currentHour = localNow.getUTCHours();
+  const currentMinute = localNow.getUTCMinutes();
 
   // 발행 가능한 요일들을 숫자로 변환
   const scheduledDays = publishDays
@@ -73,13 +96,13 @@ export function calculateNextPublishTime(
         }
       }
 
-      // 발행 날짜/시간 계산
-      const publishDate = new Date(localNow);
-      publishDate.setDate(publishDate.getDate() + i);
-      publishDate.setHours(hours, minutes, 0, 0);
+      // 발행 날짜/시간 계산 (로컬 시간 기준)
+      const publishDateLocal = new Date(localNow);
+      publishDateLocal.setUTCDate(publishDateLocal.getUTCDate() + i);
+      publishDateLocal.setUTCHours(hours, minutes, 0, 0);
 
-      // UTC로 변환
-      const utcPublishDate = new Date(publishDate.getTime() - timezoneOffset * 3600000);
+      // UTC로 변환 (로컬 시간에서 타임존 오프셋을 빼면 UTC)
+      const utcPublishDate = new Date(publishDateLocal.getTime() - timezoneOffsetHours * 60 * 60 * 1000);
 
       return utcPublishDate;
     }

@@ -182,10 +182,16 @@ export default function NewPostPage() {
     setPublishing(true);
 
     try {
-      const scheduledAt =
-        publishType === 'scheduled'
-          ? new Date(`${scheduledDate}T${scheduledTime}`).toISOString()
-          : undefined;
+      // 예약 시간을 한국 시간(KST, UTC+9)으로 간주하고 UTC로 변환
+      let scheduledAt: string | undefined;
+      if (publishType === 'scheduled') {
+        // 사용자 입력: "2024-01-15", "09:00" (한국 시간)
+        // KST를 UTC로 변환하려면 9시간을 빼야 함
+        const localDateTime = new Date(`${scheduledDate}T${scheduledTime}:00`);
+        // 한국 시간 기준으로 9시간을 빼서 UTC로 변환
+        const utcDateTime = new Date(localDateTime.getTime() - 9 * 60 * 60 * 1000);
+        scheduledAt = utcDateTime.toISOString();
+      }
 
       const response = await fetch('/api/posts/create', {
         method: 'POST',
