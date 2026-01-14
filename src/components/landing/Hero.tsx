@@ -15,7 +15,7 @@ export default function Hero() {
             </h1>
             <p className="text-lg lg:text-xl text-toss-gray-600 leading-relaxed font-medium">
               소재 고갈 걱정 없는 고품질 포스팅 관리.<br />
-              네이버, 티스토리, 워드프레스 통합 솔루션.
+              구글 블로거, 워드프레스 통합 솔루션.
             </p>
           </div>
           <div className="flex flex-col gap-4">

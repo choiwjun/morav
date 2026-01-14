@@ -128,7 +128,7 @@ export async function ensureValidToken(
       case 'blogger':
         return refreshBloggerToken(blogId, refreshToken);
       default:
-        // 티스토리 등은 장기 토큰 사용
+        // 워드프레스 등은 장기 토큰 사용
         return { success: true, accessToken: decrypt(blog.access_token) };
     }
   } catch (error) {

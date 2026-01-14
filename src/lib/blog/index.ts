@@ -8,7 +8,6 @@ import {
   RetryConfig,
   DEFAULT_RETRY_CONFIG,
 } from './types';
-import { publishToTistory } from './tistory';
 import { publishToBlogger } from './blogger';
 import { publishToWordPress } from './wordpress';
 import { checkUsageLimit, incrementUsage } from '@/lib/subscription';
@@ -75,7 +74,7 @@ async function getBlogCredentials(blogId: string): Promise<{
       }
       accessToken = tokenResult.accessToken;
     } else {
-      // 티스토리, 워드프레스 등은 장기 토큰 사용
+      // 워드프레스 등은 장기 토큰 사용
       accessToken = decrypt(blogData.access_token);
     }
 
@@ -109,14 +108,12 @@ export async function publishPost(
     return {
       success: false,
       error: error || '블로그 자격 증명을 가져올 수 없습니다.',
-      platform: 'tistory', // 기본값
+      platform: 'wordpress', // 기본값
     };
   }
 
   // 플랫폼별 발행
   switch (platform) {
-    case 'tistory':
-      return publishToTistory(params, credentials, retryConfig);
     case 'blogger':
       return publishToBlogger(params, credentials, retryConfig);
     case 'wordpress':
@@ -333,12 +330,6 @@ export async function publishScheduledPosts(): Promise<{
         // 발행
         let result: PublishResult;
         switch (platform) {
-          case 'tistory':
-            result = await publishToTistory(
-              { title: post.title, content: post.content, visibility: 'public' },
-              credentials
-            );
-            break;
           case 'blogger':
             result = await publishToBlogger(
               { title: post.title, content: post.content, visibility: 'public' },

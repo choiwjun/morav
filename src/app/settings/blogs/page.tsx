@@ -14,7 +14,7 @@ interface Blog {
   id: string;
   name: string;
   url: string;
-  platform: 'tistory' | 'blogger' | 'wordpress';
+  platform: 'blogger' | 'wordpress';
   categories: string[];
   is_active: boolean;
   created_at: string;
@@ -30,12 +30,6 @@ interface BlogsResponse {
 const MAX_BLOGS = 3;
 
 const PLATFORM_INFO = {
-  tistory: {
-    name: '티스토리',
-    icon: '📝',
-    color: 'bg-green-50 border-green-200',
-    textColor: 'text-green-700',
-  },
   blogger: {
     name: '구글 블로그',
     icon: '🔵',
@@ -399,7 +393,7 @@ export default function BlogsPage() {
           <div>
             <h4 className="font-semibold text-[#0c111d] mb-1">블로그 연동 안내</h4>
             <p className="text-sm text-[#4562a1]">
-              티스토리, 구글 블로그, 워드프레스 블로그를 연동하면 키워드 기반으로 자동 콘텐츠 생성 및 발행이 가능합니다.
+              구글 블로그, 워드프레스 블로그를 연동하면 키워드 기반으로 자동 콘텐츠 생성 및 발행이 가능합니다.
               각 플랫폼의 API 또는 OAuth 인증을 통해 안전하게 연동됩니다.
             </p>
           </div>
@@ -435,7 +429,7 @@ export default function BlogsPage() {
                 <Input
                   value={editFormData.blog_url}
                   onChange={(e) => setEditFormData({ ...editFormData, blog_url: e.target.value })}
-                  placeholder={editingBlog.platform === 'blogger' ? 'yourblog.blogspot.com' : 'myblog.tistory.com'}
+                  placeholder={editingBlog.platform === 'blogger' ? 'yourblog.blogspot.com' : 'yourblog.wordpress.com'}
                   className="border-[#cdd6ea] focus:border-[#4562a1] focus:ring-[#4562a1]"
                 />
                 <p className="mt-1 text-xs text-[#4562a1]">
@@ -512,11 +506,11 @@ export default function BlogsPage() {
                 </div>
               )}
 
-              {/* Access Token (Tistory, WordPress) */}
+              {/* Access Token (WordPress) */}
               {editingBlog.platform !== 'blogger' && (
                 <div>
                   <label className="block text-sm font-medium text-[#0c111d] mb-2">
-                    {editingBlog.platform === 'tistory' ? 'Access Token' : 'Application Password'}
+                    Application Password
                   </label>
                   <Input
                     type="password"

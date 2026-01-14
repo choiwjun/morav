@@ -19,7 +19,7 @@ export default function HowItWorks() {
             <div className="flex flex-col gap-2">
               <h3 className="text-xl sm:text-2xl font-bold text-toss-gray-800">블로그 연동</h3>
               <p className="text-sm sm:text-base text-toss-gray-600 leading-relaxed font-medium">
-                네이버, 티스토리 등 운영 중인 계정을 안전하게 연결하세요.
+                구글 블로거, 워드프레스 등 운영 중인 계정을 안전하게 연결하세요.
               </p>
             </div>
           </div>

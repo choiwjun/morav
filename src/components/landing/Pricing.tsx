@@ -153,7 +153,7 @@ export default function Pricing() {
         </div>
 
         <p className="text-center text-xs text-toss-gray-400 mt-8">
-          모든 유료 플랜: 실시간 인기 키워드 DB 접근 · 카테고리별 필터링 · AI 콘텐츠 자동 생성 (사용자 BYOK) · 티스토리/구글블로그/워드프레스
+          모든 유료 플랜: 실시간 인기 키워드 DB 접근 · 카테고리별 필터링 · AI 콘텐츠 자동 생성 (사용자 BYOK) · 구글블로그/워드프레스
         </p>
       </div>
     </section>

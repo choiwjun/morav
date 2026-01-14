@@ -5,11 +5,11 @@ import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-type BlogPlatform = 'tistory' | 'blogger' | 'wordpress' | null;
+type BlogPlatform = 'blogger' | 'wordpress' | null;
 
 interface ConnectedBlog {
   id: string;
-  platform: 'tistory' | 'blogger' | 'wordpress';
+  platform: 'blogger' | 'wordpress';
   blogName: string;
   blogUrl: string;
   connectedAt: string;
@@ -31,9 +31,6 @@ function OAuthResultHandler({
 
     if (successParam === 'blogger') {
       onSuccess('구글 블로거가 연결되었습니다.');
-      window.history.replaceState({}, '', '/onboarding/connect-blog');
-    } else if (successParam === 'tistory') {
-      onSuccess('티스토리가 연결되었습니다.');
       window.history.replaceState({}, '', '/onboarding/connect-blog');
     }
 
@@ -91,13 +88,6 @@ export default function ConnectBlogPage() {
   // 블로그 플랫폼 정보
   const blogPlatforms = [
     {
-      id: 'tistory',
-      name: '티스토리',
-      description: '티스토리 Access Token으로 연결',
-      icon: '📝',
-      color: 'bg-orange-50 border-orange-200 hover:bg-orange-100',
-    },
-    {
       id: 'blogger',
       name: '구글 블로거',
       description: 'Google 계정으로 연결',
@@ -112,52 +102,6 @@ export default function ConnectBlogPage() {
       color: 'bg-purple-50 border-purple-200 hover:bg-purple-100',
     },
   ];
-
-  // 티스토리 연결
-  const handleConnectTistory = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
-
-    const form = e.target as HTMLFormElement;
-    const blogName = form.blogName.value;
-    const blogUrl = form.blogUrl.value;
-    const accessToken = form.accessToken.value;
-
-    try {
-      const response = await fetch('/api/blog/tistory/connect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ blogName, blogUrl, accessToken }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || '티스토리 연결에 실패했습니다.');
-      }
-
-      setSuccess('티스토리 블로그가 연결되었습니다.');
-      setConnectedBlogs([
-        ...connectedBlogs,
-        {
-          id: data.blog?.id || Date.now().toString(),
-          platform: 'tistory',
-          blogName: data.blog?.blog_name || blogName,
-          blogUrl: data.blog?.blog_url || blogUrl,
-          connectedAt: new Date().toISOString(),
-        },
-      ]);
-      setSelectedPlatform(null);
-      form.reset();
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '티스토리 연결에 실패했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // 구글 블로거 연결 (OAuth)
   const handleConnectBlogger = async () => {
@@ -290,7 +234,7 @@ export default function ConnectBlogPage() {
 
         {/* 플랫폼 선택 */}
         {!selectedPlatform ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {blogPlatforms.map((platform) => (
               <button
                 key={platform.id}
@@ -305,77 +249,6 @@ export default function ConnectBlogPage() {
           </div>
         ) : (
           <div className="mb-8">
-            {/* 티스토리 연결 폼 */}
-            {selectedPlatform === 'tistory' && (
-              <div className="bg-orange-50 border border-orange-200 rounded-xl p-8">
-                <div className="text-6xl mb-4 text-center">📝</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">티스토리 블로그 연결</h3>
-                <p className="text-gray-600 mb-6 text-center">
-                  티스토리 Open API에서 발급받은 Access Token을 입력해주세요.
-                </p>
-
-                <form onSubmit={handleConnectTistory} className="space-y-6">
-                  <div>
-                    <label htmlFor="blogName" className="block text-sm font-medium mb-2">
-                      블로그 이름
-                    </label>
-                    <Input id="blogName" name="blogName" placeholder="내 티스토리 블로그" required />
-                  </div>
-
-                  <div>
-                    <label htmlFor="blogUrl" className="block text-sm font-medium mb-2">
-                      블로그 주소
-                    </label>
-                    <Input
-                      id="blogUrl"
-                      name="blogUrl"
-                      placeholder="myblog.tistory.com"
-                      required
-                    />
-                    <p className="text-xs text-gray-500 mt-1">예: myblog.tistory.com (https:// 제외)</p>
-                  </div>
-
-                  <div>
-                    <label htmlFor="accessToken" className="block text-sm font-medium mb-2">
-                      Access Token
-                    </label>
-                    <Input
-                      id="accessToken"
-                      name="accessToken"
-                      type="password"
-                      placeholder="티스토리 Access Token"
-                      required
-                    />
-                    <p className="text-xs text-gray-500 mt-2">
-                      <a
-                        href="https://www.tistory.com/guide/api/manage/register"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        티스토리 Open API 앱 등록
-                      </a>
-                      에서 Access Token을 발급받을 수 있습니다.
-                    </p>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <Button type="submit" disabled={loading} size="lg" className="min-w-[200px]">
-                      {loading ? '연결 중...' : '연결하기'}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => setSelectedPlatform(null)}
-                      disabled={loading}
-                    >
-                      취소
-                    </Button>
-                  </div>
-                </form>
-              </div>
-            )}
-
             {/* 구글 블로거 연결 (OAuth) */}
             {selectedPlatform === 'blogger' && (
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-8">
@@ -494,14 +367,12 @@ export default function ConnectBlogPage() {
                 >
                   <div className="flex items-center gap-4">
                     <div className="text-2xl">
-                      {blog.platform === 'tistory' && '📝'}
                       {blog.platform === 'blogger' && '🔵'}
                       {blog.platform === 'wordpress' && '⚙️'}
                     </div>
                     <div>
                       <h4 className="font-medium text-gray-900">{blog.blogName}</h4>
                       <p className="text-sm text-gray-500">
-                        {blog.platform === 'tistory' && '티스토리'}
                         {blog.platform === 'blogger' && '구글 블로거'}
                         {blog.platform === 'wordpress' && '워드프레스'}
                         {blog.blogUrl && ` · ${blog.blogUrl}`}

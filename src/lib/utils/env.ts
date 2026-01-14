@@ -3,9 +3,6 @@
  */
 
 interface EnvConfig {
-  // OAuth - Tistory
-  TISTORY_CLIENT_ID: string;
-  TISTORY_CLIENT_SECRET: string;
   // OAuth - Google (Blogger)
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
@@ -47,10 +44,6 @@ export function getEnv(key: EnvKey, defaultValue: string = ''): string {
 /**
  * OAuth 설정이 완료되었는지 확인합니다.
  */
-export function isTistoryConfigured(): boolean {
-  return !!(process.env.TISTORY_CLIENT_ID && process.env.TISTORY_CLIENT_SECRET);
-}
-
 export function isBloggerConfigured(): boolean {
   return !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 }

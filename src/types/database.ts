@@ -40,7 +40,7 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
-          platform: 'tistory' | 'blogger' | 'wordpress';
+          platform: 'blogger' | 'wordpress';
           blog_name: string;
           blog_url: string;
           external_blog_id: string | null;
@@ -56,7 +56,7 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
-          platform: 'tistory' | 'blogger' | 'wordpress';
+          platform: 'blogger' | 'wordpress';
           blog_name: string;
           blog_url: string;
           external_blog_id?: string | null;

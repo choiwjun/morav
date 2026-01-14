@@ -2,7 +2,7 @@
  * 블로그 발행 타입 정의
  */
 
-export type BlogPlatform = 'tistory' | 'blogger' | 'wordpress';
+export type BlogPlatform = 'blogger' | 'wordpress';
 
 export interface PublishParams {
   title: string;
