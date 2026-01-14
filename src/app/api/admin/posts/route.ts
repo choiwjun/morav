@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server';
 import { checkAdminAuth } from '@/lib/admin';
 
 export async function GET(request: NextRequest) {
@@ -9,7 +9,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
 
-    const supabase = await createClient();
+    // 관리자용 클라이언트 사용 (RLS 우회)
+    const supabase = createAdminClient();
     const { searchParams } = new URL(request.url);
 
     // 파라미터 파싱

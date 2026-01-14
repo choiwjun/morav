@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server';
 import { checkAdminAuth } from '@/lib/admin';
 
 export async function GET() {
@@ -9,7 +9,8 @@ export async function GET() {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
 
-    const supabase = await createClient();
+    // 관리자용 클라이언트 사용 (RLS 우회)
+    const supabase = createAdminClient();
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
     const weekStart = new Date(
