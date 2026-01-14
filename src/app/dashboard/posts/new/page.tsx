@@ -182,14 +182,19 @@ export default function NewPostPage() {
     setPublishing(true);
 
     try {
-      // 예약 시간을 한국 시간(KST, UTC+9)으로 간주하고 UTC로 변환
+      // 예약 시간을 한국 시간(KST, UTC+9)으로 처리하여 UTC로 변환
       let scheduledAt: string | undefined;
       if (publishType === 'scheduled') {
-        // 사용자 입력: "2024-01-15", "09:00" (한국 시간)
-        // KST를 UTC로 변환하려면 9시간을 빼야 함
-        const localDateTime = new Date(`${scheduledDate}T${scheduledTime}:00`);
-        // 한국 시간 기준으로 9시간을 빼서 UTC로 변환
-        const utcDateTime = new Date(localDateTime.getTime() - 9 * 60 * 60 * 1000);
+        // 사용자 입력: "2024-01-15", "14:00" (한국 시간 기준으로 표시)
+        //
+        // 문제: new Date("2024-01-15T14:00:00")는 브라우저의 로컬 타임존으로 해석됨
+        // - 한국 브라우저: KST 14:00 → UTC 05:00 (자동 변환)
+        // - 미국 브라우저: PST 14:00 → UTC 22:00 (다른 결과)
+        //
+        // 해결: ISO 8601 형식으로 KST 오프셋을 명시적으로 지정
+        // "2024-01-15T14:00:00+09:00" → 어느 브라우저에서든 UTC 05:00으로 동일하게 변환
+        const kstDateTimeString = `${scheduledDate}T${scheduledTime}:00+09:00`;
+        const utcDateTime = new Date(kstDateTimeString);
         scheduledAt = utcDateTime.toISOString();
       }
 
